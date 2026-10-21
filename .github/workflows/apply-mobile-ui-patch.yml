@@ -2,7 +2,7 @@ name: Apply mobile UI patch
 on:
   push:
     branches: [develop]
-    paths: ['scripts/patch-mobile-ui.js']
+    paths: ['scripts/patch-mobile-ui.cjs']
 permissions:
   contents: write
 jobs:
@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: node scripts/patch-mobile-ui.js
+      - run: node scripts/patch-mobile-ui.cjs
       - run: |
           git config user.name "ANISE Bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

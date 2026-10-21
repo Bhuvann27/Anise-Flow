@@ -1,9 +1,0 @@
-const fs=require('fs');
-const p='src/App.jsx';
-let s=fs.readFileSync(p,'utf8');
-const bad='</main>{showAdd&&<AddDoctor session={session} people={people} onClose={()=>setShowAdd(false)} onCreated={async()=>{setShowAdd(false);await load()}}/>}{showQuickUpdate&&<QuickUpdate people={people} onClose={()=>setShowQuickUpdate(false)} onSaved={logSaved}/>}</div>}<div className="mobile-quick-actions"><div className={`mobile-quick-menu ${showQuickActions?\'open\':\'\'}`}><button onClick={()=>{setShowQuickActions(false);setShowQuickUpdate(true)}}><Zap size={16}/> Log update</button><button onClick={()=>{setShowQuickActions(false);setShowAdd(true)}}><CirclePlus size={16}/> Add doctor</button></div><button className={`mobile-fab ${showQuickActions?\'active\':\'\'}`} onClick={()=>setShowQuickActions(v=>!v)} aria-label="Quick actions"><CirclePlus size={22}/></button></div></div>}';
-const good='</main>{showAdd&&<AddDoctor session={session} people={people} onClose={()=>setShowAdd(false)} onCreated={async()=>{setShowAdd(false);await load()}}/>}{showQuickUpdate&&<QuickUpdate people={people} onClose={()=>setShowQuickUpdate(false)} onSaved={logSaved}/>}<div className="mobile-quick-actions"><div className={`mobile-quick-menu ${showQuickActions?\'open\':\'\'}`}><button onClick={()=>{setShowQuickActions(false);setShowQuickUpdate(true)}}><Zap size={16}/> Log update</button><button onClick={()=>{setShowQuickActions(false);setShowAdd(true)}}><CirclePlus size={16}/> Add doctor</button></div><button className={`mobile-fab ${showQuickActions?\'active\':\'\'}`} onClick={()=>setShowQuickActions(v=>!v)} aria-label="Quick actions"><CirclePlus size={22}/></button></div></div>}';
-if(!s.includes(bad)) throw new Error('bad tail not found');
-s=s.replace(bad,good);
-fs.writeFileSync(p,s);
-// trigger the one-shot fix

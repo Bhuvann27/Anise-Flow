@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Activity as ActivityIcon, ArrowUpRight, Bell, CalendarClock, CheckCircle2, ChevronRight, CirclePlus, LayoutDashboard, LogOut, Menu, MessageCircle, Search, Settings, Stethoscope, Target, Users, X, Zap } from 'lucide-react';
 import { supabase } from './lib/supabase';
+import './components/flow.css';
 import PeopleCRM from './components/People';
 import Campaigns from './components/Campaigns';
 import SettingsPage from './components/SettingsPage';

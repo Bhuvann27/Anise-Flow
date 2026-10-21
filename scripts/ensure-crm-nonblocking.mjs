@@ -8,9 +8,23 @@ const stateReplacement = "[showQuickActions,setShowQuickActions]=useState(false)
 const loadNeedle = "async function load(){setBusy(true);setError('');";
 const loadReplacement = "async function load(){setError('');";
 
-if (!source.includes(stateNeedle)) throw new Error('CRM loading state pattern not found');
-if (!source.includes(loadNeedle)) throw new Error('CRM load pattern not found');
+const hasOriginalState = source.includes(stateNeedle);
+const hasOriginalLoad = source.includes(loadNeedle);
+const hasNonBlockingState = source.includes(stateReplacement);
+const hasNonBlockingLoad = source.includes(loadReplacement);
 
-source = source.replace(stateNeedle, stateReplacement).replace(loadNeedle, loadReplacement);
-fs.writeFileSync(path, source);
-console.log('ANISE Flow build fix: CRM shell now renders immediately while Supabase data loads.');
+if (hasOriginalState) source = source.replace(stateNeedle, stateReplacement);
+if (hasOriginalLoad) source = source.replace(loadNeedle, loadReplacement);
+
+if ((hasOriginalState && !hasOriginalLoad) || (!hasOriginalState && hasOriginalLoad)) {
+  throw new Error('CRM loading fix found only partially. Please inspect src/App.jsx before building.');
+}
+
+if (hasOriginalState || hasOriginalLoad) {
+  fs.writeFileSync(path, source);
+  console.log('ANISE Flow build fix: CRM shell now renders immediately while Supabase data loads.');
+} else if (hasNonBlockingState && hasNonBlockingLoad) {
+  console.log('ANISE Flow build fix: CRM shell is already non-blocking; no source rewrite needed.');
+} else {
+  throw new Error('CRM loading state pattern not found and non-blocking state is not present.');
+}

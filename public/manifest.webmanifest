@@ -5,5 +5,13 @@
   "display": "standalone",
   "background_color": "#0b0d0f",
   "theme_color": "#101214",
-  "description": "Private ANISE outreach CRM"
+  "description": "Private ANISE outreach CRM",
+  "icons": [
+    {
+      "src": "/anise-flow-app-icon.svg",
+      "sizes": "96x96",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

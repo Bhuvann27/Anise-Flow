@@ -10,3 +10,7 @@ This repository is intentionally separate from all public ANISE doctor websites 
 - Supabase Auth + PostgreSQL
 - Mobile-first PWA
 - Cloudflare deployment
+
+## Deployment
+
+The active development branch is `develop`.

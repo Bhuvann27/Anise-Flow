@@ -9,7 +9,7 @@ import ActivityPage from './components/Activity';
 import Targets from './components/Targets';
 import QuickUpdate from './components/QuickUpdate';
 
-const statusLabels={new:'New',contacted:'Contacted',conversation:'Conversation',interested:'Interested',proposal:'Proposal',won:'Won',lost:'Lost'};
+const statusLabels={new:'Not contacted yet',contacted:'Contacted',conversation:'Follow-up required',interested:'Interested / Continue',proposal:'Proposal',won:'Won',lost:'Lost'};
 const nav=[['Dashboard',LayoutDashboard],['People',Users],['Targets',Target],['Activity',ActivityIcon],['Follow-ups',CalendarClock],['Pipeline',ActivityIcon],['Campaigns',Target]];
 
 export default function App(){const [session,setSession]=useState(null);const [loading,setLoading]=useState(true);useEffect(()=>{supabase.auth.getSession().then(({data})=>{setSession(data.session);setLoading(false)});const {data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>setSession(s));return()=>subscription.unsubscribe()},[]);if(loading)return <div className="center-screen"><div className="brand-mark"><Stethoscope size={20}/></div><span>Loading ANISE Flow...</span></div>;return session?<CRM session={session}/>:<Auth/>}

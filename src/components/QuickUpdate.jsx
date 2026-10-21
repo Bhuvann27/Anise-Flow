@@ -1,14 +1,45 @@
-import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import DateTimeFields from './DateTimeFields';
+import { useMemo, useState } from 'react';
+import { Search, X } from 'lucide-react';
+import DoctorProfile from './DoctorProfile';
 import './flow.css';
 
-const channels={whatsapp:'WhatsApp',call:'Call',instagram:'Instagram',email:'Email',meeting:'Meeting',in_person:'In person',referral:'Referral',custom:'Custom'};
-const outcomes=['Follow-up needed','Contacted','Interested','Asked for details','Proposal requested','No response','Not interested','Converted','Other'];
+export default function QuickUpdate({people,onClose}){
+  const [query,setQuery]=useState('');
+  const [person,setPerson]=useState(null);
+  const matches=useMemo(()=>{
+    const q=query.trim().toLowerCase();
+    if(!q)return [];
+    return people.filter(p=>`${p.name} ${p.speciality||''} ${p.location||''} ${p.phone||''} ${p.whatsapp||''}`.toLowerCase().includes(q)).slice(0,8);
+  },[people,query]);
 
-export default function QuickUpdate({people,onClose,onSaved}){const [query,setQuery]=useState(''),[person,setPerson]=useState(null),[channel,setChannel]=useState('whatsapp'),[outcome,setOutcome]=useState('Follow-up needed'),[notes,setNotes]=useState(''),[context,setContext]=useState(''),[contactedPerson,setContactedPerson]=useState(''),[happenedAt,setHappenedAt]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
- useEffect(()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');setHappenedAt(`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`)},[]);
- const matches=query.trim()?people.filter(p=>`${p.name} ${p.speciality||''}`.toLowerCase().includes(query.toLowerCase())).slice(0,6):[];
- async function save(e){e.preventDefault();if(!person||!notes.trim()){setMessage(!person?'Select a person first.':'Add what happened.');return}if(!happenedAt||!happenedAt.split('T')[0]||!happenedAt.split('T')[1]){setMessage('Enter a valid date and time.');return}setBusy(true);const {data:{user}}=await supabase.auth.getUser();const {error}=await supabase.from('interactions').insert({owner_id:user.id,prospect_id:person.id,channel,outcome,notes:notes.trim(),context:context.trim()||null,contacted_person:contactedPerson.trim()||null,happened_at:new Date(happenedAt).toISOString()});if(error)setMessage(error.message);else await onSaved();setBusy(false)}
- return <div className="quick-update-layer"><form className="quick-update-panel" onSubmit={save}><div className="modal-head"><div><p className="eyebrow">QUICK ACTION</p><h2>Log update</h2></div><button type="button" className="icon-btn" onClick={onClose}><X size={18}/></button></div><label>Person<input value={person?.name||query} onChange={e=>{setQuery(e.target.value);setPerson(null)}} placeholder="Search doctor..." autoFocus/>{matches.length>0&&<div className="person-picker">{matches.map(p=><button type="button" key={p.id} onClick={()=>{setPerson(p);setQuery('')}}><b>{p.name}</b><span>{p.speciality||'Speciality not set'}</span></button>)}</div>}{person&&<div className="selected-person">Selected: <b>{person.name}</b></div>}</label><div className="form-grid"><label>Type<select value={channel} onChange={e=>setChannel(e.target.value)}>{Object.entries(channels).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label><label>Outcome<select value={outcome} onChange={e=>setOutcome(e.target.value)}>{outcomes.map(x=><option key={x}>{x}</option>)}</select></label><DateTimeFields value={happenedAt} onChange={setHappenedAt}/><label>Where / context<input value={context} onChange={e=>setContext(e.target.value)} placeholder="College, hospital, CME..."/></label><label>Who did you contact?<input value={contactedPerson} onChange={e=>setContactedPerson(e.target.value)} placeholder="Doctor, assistant, HOD..."/></label><label className="full-field">What happened?<textarea required value={notes} onChange={e=>setNotes(e.target.value)} placeholder="What happened?"/></label></div>{message&&<p className="auth-message">{message}</p>}<div className="modal-actions"><button type="button" className="secondary-btn" onClick={onClose}>Cancel</button><button className="add-btn" disabled={busy}>{busy?'Saving...':'Save update'}</button></div></form></div>}
+  if(person){
+    return <DoctorProfile prospect={person} onClose={onClose} onChanged={()=>{}} onLogActivity={()=>{}}/>;
+  }
+
+  return <div className="quick-update-layer" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
+    <section className="quick-update-panel quick-update-search-panel" onMouseDown={e=>e.stopPropagation()}>
+      <div className="modal-head">
+        <div><p className="eyebrow">QUICK ACTION</p><h2>Log update</h2></div>
+        <button type="button" className="icon-btn" onClick={onClose} aria-label="Close"><X size={18}/></button>
+      </div>
+      <div className="quick-update-search-copy">
+        <p>Select the doctor first.</p>
+        <span>After you select someone, their complete profile will open so you can review the contact details and log the interaction there.</span>
+      </div>
+      <label className="quick-update-search-field">
+        <span>Doctor</span>
+        <div className="quick-search-input-wrap"><Search size={17}/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search doctor..."/></div>
+      </label>
+      {query.trim()&&<div className="quick-update-results">
+        {matches.length?matches.map(p=><button type="button" className="quick-update-result" key={p.id} onClick={()=>setPerson(p)}>
+          <div className="avatar soft">{initials(p.name)}</div>
+          <div><strong>{p.name}</strong><span>{p.speciality||'Speciality not set'} · {p.location||'Location not set'}</span></div>
+          <span className="result-arrow">Open profile</span>
+        </button>):<div className="quick-update-no-results">No doctor found.</div>}
+      </div>}
+      {!query.trim()&&<div className="quick-update-hint">Start typing a doctor’s name, speciality, location, or phone number.</div>}
+    </section>
+  </div>
+}
+
+const initials=name=>(name||'').replace(/^Dr\.\s*/,'').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();

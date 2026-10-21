@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import './flow.css';
 
 const channels={whatsapp:'WhatsApp',call:'Call',instagram:'Instagram',email:'Email',meeting:'Meeting',in_person:'In person',referral:'Referral',custom:'Custom'};
 const outcomes=['Follow-up needed','Contacted','Interested','Asked for details','Proposal requested','No response','Not interested','Converted','Other'];

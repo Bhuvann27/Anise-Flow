@@ -1,26 +1,75 @@
-/* Keep the dashboard pipeline items visually neutral on mobile.
-   This prevents browser focus/active styling from turning one stage into a large filled block. */
+/* Final dashboard visual overrides. Keep pipeline stages plain and consistent. */
+.pipeline-summary,
+.pipeline-summary > *,
+.pipeline-summary > button,
+.pipeline-summary .pipeline-item,
 .pipeline-summary .pipeline-item-button,
+.pipeline-summary .pipeline-item-button:hover,
 .pipeline-summary .pipeline-item-button:focus,
 .pipeline-summary .pipeline-item-button:focus-visible,
-.pipeline-summary .pipeline-item-button:active {
-  -webkit-appearance: none;
-  appearance: none;
+.pipeline-summary .pipeline-item-button:active,
+.pipeline-summary .pipeline-item-button:visited {
   background: transparent !important;
+  background-color: transparent !important;
   border: 0 !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
-  color: inherit;
-  outline: none;
-  text-align: left;
+  outline: none !important;
 }
 
+.pipeline-summary > button,
 .pipeline-summary .pipeline-item-button {
-  width: 100%;
-  min-width: 0;
-  margin: 0;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  color: inherit !important;
+  display: grid !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: left !important;
 }
 
-.pipeline-summary .pipeline-item-button .bar {
-  min-width: 0;
-  overflow: hidden;
+.pipeline-summary .pipeline-item-button::before,
+.pipeline-summary .pipeline-item-button::after,
+.pipeline-summary > button::before,
+.pipeline-summary > button::after {
+  display: none !important;
+  content: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.pipeline-summary .pipeline-item-button .bar,
+.pipeline-summary .pipeline-item .bar {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Keep the dashboard identity as text only. The old greeting/logo treatment is hidden. */
+.hero-row h1 {
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 1 !important;
+}
+
+.hero-row h1::after {
+  content: "ANISE Flow";
+  display: block;
+  color: #eef1f2;
+  font-size: clamp(2.7rem, 8vw, 4.2rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+/* If an older deployed hero still contains a logo, hide only that hero logo. */
+.hero-row .brand-mark,
+.hero-row .hero-logo,
+.hero-row .dashboard-logo {
+  display: none !important;
 }

@@ -6,3 +6,4 @@ const good='</main>{showAdd&&<AddDoctor session={session} people={people} onClos
 if(!s.includes(bad)) throw new Error('bad tail not found');
 s=s.replace(bad,good);
 fs.writeFileSync(p,s);
+// trigger the one-shot fix

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CirclePlus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import './flow.css';
 
 const labels={whatsapp:'WhatsApp',call:'Call',instagram:'Instagram',email:'Email',meeting:'Meeting',in_person:'In person',referral:'Referral',custom:'Custom'};
 const dt=v=>v?new Date(v).toLocaleString('en-GB',{dateStyle:'short',timeStyle:'short'}):'';

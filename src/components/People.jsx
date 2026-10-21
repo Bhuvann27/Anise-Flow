@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CirclePlus, Filter } from 'lucide-react';
 import DoctorProfile from './DoctorProfile';
+import './profile.css';
 
 const statusLabels={new:'New',contacted:'Contacted',conversation:'Conversation',interested:'Interested',proposal:'Proposal',won:'Won',lost:'Lost'};
 const initials=name=>(name||'').replace(/^Dr\.\s*/,'').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();

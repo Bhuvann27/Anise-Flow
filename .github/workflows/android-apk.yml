@@ -1,0 +1,46 @@
+name: Build ANISE Flow APK
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Restore launcher icon from source image
+        run: |
+          mkdir -p android/app/src/main/res/drawable
+          base64 -d android/app-icon.b64 > android/app/src/main/res/drawable/app_icon.png
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Build debug APK
+        working-directory: android
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ANISE-Flow-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

@@ -1,0 +1,26 @@
+/* Keep the dashboard pipeline items visually neutral on mobile.
+   This prevents browser focus/active styling from turning one stage into a large filled block. */
+.pipeline-summary .pipeline-item-button,
+.pipeline-summary .pipeline-item-button:focus,
+.pipeline-summary .pipeline-item-button:focus-visible,
+.pipeline-summary .pipeline-item-button:active {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: inherit;
+  outline: none;
+  text-align: left;
+}
+
+.pipeline-summary .pipeline-item-button {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.pipeline-summary .pipeline-item-button .bar {
+  min-width: 0;
+  overflow: hidden;
+}

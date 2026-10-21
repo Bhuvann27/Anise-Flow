@@ -1,63 +1,59 @@
 /* Final-pass visual fixes for the dashboard. Loaded after the existing app styles. */
 
-/* Replace the time-based dashboard greeting with a stable ANISE Flow identity block. */
+/* Keep the dashboard identity simple: text only, no decorative logo. */
 .hero-row > div:first-child > .eyebrow {
   display: none;
 }
 
 .hero-row h1 {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-height: 58px;
-  margin: 0;
-  font-size: 0;
-  line-height: 1;
-  letter-spacing: -0.04em;
-}
-
-.hero-row h1::before {
-  content: "";
-  width: 56px;
-  height: 56px;
-  flex: 0 0 56px;
   display: block;
-  background: url('/anise-logo.svg') center / contain no-repeat;
-  filter: invert(1);
-}
-
-.hero-row h1::after {
-  content: "ANISE Flow";
-  color: #e7ebec;
-  font: 700 clamp(32px, 4vw, 46px)/1 Manrope, sans-serif;
+  min-height: 0;
+  margin: 0;
+  font-size: clamp(32px, 4vw, 46px);
+  line-height: 1;
   letter-spacing: -0.045em;
+  color: #e7ebec;
+  font-family: Manrope, sans-serif;
+  font-weight: 700;
 }
 
-/* Prevent the Proposal stage from becoming a giant native-button block on touch. */
+/* Make every dashboard pipeline stage a plain, consistent clickable item.
+   In particular, prevent the Proposal item from retaining the mobile button's
+   native/focus background and rounded block styling. */
 .pipeline-summary .pipeline-item-button,
 .pipeline-summary .pipeline-item-button:hover,
 .pipeline-summary .pipeline-item-button:focus,
 .pipeline-summary .pipeline-item-button:focus-visible,
-.pipeline-summary .pipeline-item-button:active {
+.pipeline-summary .pipeline-item-button:active,
+.pipeline-summary .pipeline-item-button:visited {
   -webkit-appearance: none !important;
   appearance: none !important;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent !important;
   background: transparent !important;
+  background-color: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
   color: inherit !important;
   outline: none !important;
   text-align: left;
+  text-decoration: none !important;
+  filter: none !important;
 }
 
 .pipeline-summary .pipeline-item-button {
-  width: 100%;
-  min-width: 0;
-  min-height: 0;
-  margin: 0;
-  padding: 0;
-  border-radius: 0;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
   touch-action: manipulation;
+}
+
+.pipeline-summary .pipeline-item-button::before,
+.pipeline-summary .pipeline-item-button::after {
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .pipeline-summary .pipeline-item-button .bar {
@@ -67,17 +63,6 @@
 
 @media (max-width: 760px) {
   .hero-row h1 {
-    gap: 12px;
-    min-height: 48px;
-  }
-
-  .hero-row h1::before {
-    width: 44px;
-    height: 44px;
-    flex-basis: 44px;
-  }
-
-  .hero-row h1::after {
     font-size: 32px;
   }
 }

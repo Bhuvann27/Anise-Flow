@@ -1,27 +1,19 @@
 /* Final dashboard visual overrides. Keep pipeline stages plain and consistent. */
-.pipeline-summary,
-.pipeline-summary > *,
-.pipeline-summary > button,
-.pipeline-summary .pipeline-item,
-.pipeline-summary .pipeline-item-button,
-.pipeline-summary .pipeline-item-button:hover,
-.pipeline-summary .pipeline-item-button:focus,
-.pipeline-summary .pipeline-item-button:focus-visible,
-.pipeline-summary .pipeline-item-button:active,
-.pipeline-summary .pipeline-item-button:visited {
+html body .app-shell .main .content .panel .pipeline-summary > button.pipeline-item-button,
+html body .app-shell .main .content .panel .pipeline-summary > button.pipeline-item,
+html body .app-shell .main .content .panel .pipeline-summary > button.pipeline-item-button:hover,
+html body .app-shell .main .content .panel .pipeline-summary > button.pipeline-item-button:focus,
+html body .app-shell .main .content .panel .pipeline-summary > button.pipeline-item-button:focus-visible,
+html body .app-shell .main .content .panel .pipeline-summary > button.pipeline-item-button:active {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  -webkit-tap-highlight-color: transparent !important;
   background: transparent !important;
   background-color: transparent !important;
   border: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   outline: none !important;
-}
-
-.pipeline-summary > button,
-.pipeline-summary .pipeline-item-button {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  -webkit-tap-highlight-color: transparent !important;
   color: inherit !important;
   display: grid !important;
   width: 100% !important;
@@ -32,44 +24,41 @@
   text-align: left !important;
 }
 
-.pipeline-summary .pipeline-item-button::before,
-.pipeline-summary .pipeline-item-button::after,
-.pipeline-summary > button::before,
-.pipeline-summary > button::after {
+html body .app-shell .main .content .panel .pipeline-summary > button.pipeline-item-button::before,
+html body .app-shell .main .content .panel .pipeline-summary > button.pipeline-item-button::after {
   display: none !important;
   content: none !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 
-.pipeline-summary .pipeline-item-button .bar,
-.pipeline-summary .pipeline-item .bar {
+html body .app-shell .main .content .panel .pipeline-summary > button.pipeline-item-button .bar {
   min-width: 0 !important;
   overflow: hidden !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 
-/* Keep the dashboard identity as text only. The old greeting/logo treatment is hidden. */
-.hero-row h1 {
+/* Dashboard identity: text only. Keep the existing title position/type treatment, but replace the greeting. */
+html body .app-shell .main .content .hero-row h1 {
   color: transparent !important;
   font-size: 0 !important;
   line-height: 1 !important;
 }
 
-.hero-row h1::after {
+html body .app-shell .main .content .hero-row h1::after {
   content: "ANISE Flow";
   display: block;
-  color: #eef1f2;
-  font-size: clamp(2.7rem, 8vw, 4.2rem);
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.045em;
+  color: #eef1f2 !important;
+  font-size: clamp(2.7rem, 8vw, 4.2rem) !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.045em !important;
 }
 
-/* If an older deployed hero still contains a logo, hide only that hero logo. */
-.hero-row .brand-mark,
-.hero-row .hero-logo,
-.hero-row .dashboard-logo {
+/* Hide only a legacy logo if an older dashboard markup is still served. */
+html body .app-shell .main .content .hero-row .brand-mark,
+html body .app-shell .main .content .hero-row .hero-logo,
+html body .app-shell .main .content .hero-row .dashboard-logo {
   display: none !important;
 }

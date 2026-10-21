@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { CirclePlus, X, ArrowUpRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import './profile.css';
+import './flow.css';
 
 const blank={name:'',category:'Doctor',speciality:'',location:'',source:'',connection:'',priority:'medium',status:'idea',known_information:'',research_needed:'',approach:'',next_action:''};
 export default function Targets(){const [items,setItems]=useState([]),[show,setShow]=useState(false),[form,setForm]=useState(blank),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);

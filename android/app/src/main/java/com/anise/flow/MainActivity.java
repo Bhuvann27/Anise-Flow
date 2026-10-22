@@ -16,8 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    // Keep the web app URL in one place so the APK can be repointed without touching the WebView setup.
-    private static final String WEB_APP_URL = "https://ser-01c.workers.dev/";
+    // Stable ANISE Flow web app URL. Normal web deployments update inside the APK without reinstalling.
+    private static final String WEB_APP_URL = "https://anise-flow.bnonlyuser-01c.workers.dev/";
 
     private WebView webView;
     private View errorView;

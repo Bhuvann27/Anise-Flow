@@ -5,8 +5,8 @@
     <application
         android:allowBackup="false"
         android:label="ANISE Flow"
-        android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:icon="@drawable/anise_launcher"
+        android:roundIcon="@drawable/anise_launcher"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
         <activity

@@ -30,11 +30,6 @@ jobs:
       - name: Install Android SDK packages
         run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Restore launcher icon from source image
-        run: |
-          mkdir -p android/app/src/main/res/drawable
-          base64 -d android/app-icon.b64 > android/app/src/main/res/drawable/app_icon.png
-
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:

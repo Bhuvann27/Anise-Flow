@@ -41,8 +41,7 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false);
             root.setOnApplyWindowInsetsListener((view, insets) -> {
-                WindowInsets.Type.InsetsTypeMask types = WindowInsets.Type.systemBars();
-                android.graphics.Insets bars = insets.getInsets(types);
+                android.graphics.Insets bars = insets.getInsets(WindowInsets.Type.systemBars());
                 view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
                 return insets;
             });
@@ -59,7 +58,7 @@ public class MainActivity extends Activity {
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
-        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        settings.setCacheMode(WebView.LOAD_NO_CACHE);
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
         settings.setMediaPlaybackRequiresUserGesture(false);

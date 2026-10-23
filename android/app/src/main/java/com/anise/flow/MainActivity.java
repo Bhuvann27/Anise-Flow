@@ -2,12 +2,10 @@ package com.anise.flow;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -20,7 +18,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    // Stable ANISE Flow web app URL. Normal web deployments update inside the APK without reinstalling.
     private static final String WEB_APP_URL = "https://anise-flow.bnonlyuser-01c.workers.dev/";
 
     private WebView webView;
@@ -33,21 +30,12 @@ public class MainActivity extends Activity {
         window.setStatusBarColor(Color.rgb(11, 13, 15));
         window.setNavigationBarColor(Color.rgb(11, 13, 15));
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        window.setDecorFitsSystemWindows(true);
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.rgb(11, 13, 15));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(false);
-            root.setOnApplyWindowInsetsListener((view, insets) -> {
-                android.graphics.Insets bars = insets.getInsets(WindowInsets.Type.systemBars());
-                view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
-                return insets;
-            });
-        } else {
-            root.setFitsSystemWindows(true);
-        }
+        root.setFitsSystemWindows(true);
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(11, 13, 15));
@@ -58,7 +46,7 @@ public class MainActivity extends Activity {
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
-        settings.setCacheMode(WebView.LOAD_NO_CACHE);
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
         settings.setMediaPlaybackRequiresUserGesture(false);
@@ -76,11 +64,7 @@ public class MainActivity extends Activity {
             }
 
             @Override
-            public void onReceivedError(
-                    WebView view,
-                    WebResourceRequest request,
-                    WebResourceError error
-            ) {
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 if (request.isForMainFrame()) {
                     showError();
                 }
@@ -119,10 +103,7 @@ public class MainActivity extends Activity {
         title.setGravity(Gravity.CENTER);
 
         TextView message = new TextView(this);
-        message.setText(
-                "The app could not reach the ANISE Flow server.\n\n" +
-                "Check your internet connection and try again."
-        );
+        message.setText("The app could not reach the ANISE Flow server.\n\nCheck your internet connection and try again.");
         message.setTextColor(Color.rgb(190, 194, 198));
         message.setTextSize(15);
         message.setGravity(Gravity.CENTER);

@@ -4,29 +4,11 @@ import { supabase } from '../lib/supabase';
 import WebsiteResearch from './WebsiteResearch';
 
 export default function Campaigns(){
-  if(history.state?.aniseFlowPage === 'Website Research') return <WebsiteResearch/>;
-  const [campaigns,setCampaigns]=useState([]);
-  const [people,setPeople]=useState([]);
-  const [memberships,setMemberships]=useState(new Map());
-  const [show,setShow]=useState(false);
-  const [name,setName]=useState('');
-  const [description,setDescription]=useState('');
-  const [busy,setBusy]=useState(false);
-  const [message,setMessage]=useState('');
-  const [selected,setSelected]=useState(null);
-
-  async function load(){
-    const [{data:c,error:ce},{data:p,error:pe},{data:m,error:me}]=await Promise.all([
-      supabase.from('campaigns').select('*').order('created_at',{ascending:false}),
-      supabase.from('prospects').select('id,name,speciality,status,location,priority').order('name'),
-      supabase.from('prospect_campaigns').select('campaign_id,prospect_id')
-    ]);
-    if(ce||pe||me)setMessage((ce||pe||me).message);
-    const map=new Map();
-    (m||[]).forEach(x=>{if(!map.has(x.campaign_id))map.set(x.campaign_id,new Set());map.get(x.campaign_id).add(x.prospect_id)});
-    setCampaigns(c||[]);setPeople(p||[]);setMemberships(map);
-  }
-  useEffect(()=>{load()},[]);
+  const [campaigns,setCampaigns]=useState([]),[people,setPeople]=useState([]),[memberships,setMemberships]=useState(new Map()),[show,setShow]=useState(false),[name,setName]=useState(''),[description,setDescription]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[selected,setSelected]=useState(null),[websiteMode,setWebsiteMode]=useState(history.state?.aniseFlowPage==='Website Research');
+  useEffect(()=>{const onPop=()=>setWebsiteMode(history.state?.aniseFlowPage==='Website Research');window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop)},[]);
+  useEffect(()=>{if(websiteMode)return;load()},[websiteMode]);
+  async function load(){const [{data:c,error:ce},{data:p,error:pe},{data:m,error:me}]=await Promise.all([supabase.from('campaigns').select('*').order('created_at',{ascending:false}),supabase.from('prospects').select('id,name,speciality,status,location,priority').order('name'),supabase.from('prospect_campaigns').select('campaign_id,prospect_id')]);if(ce||pe||me)setMessage((ce||pe||me).message);const map=new Map();(m||[]).forEach(x=>{if(!map.has(x.campaign_id))map.set(x.campaign_id,new Set());map.get(x.campaign_id).add(x.prospect_id)});setCampaigns(c||[]);setPeople(p||[]);setMemberships(map)}
+  if(websiteMode)return <WebsiteResearch/>;
   async function create(e){e.preventDefault();setBusy(true);setMessage('');const cleanName=name.trim();if(!cleanName){setMessage('Campaign name is required.');setBusy(false);return}const {data:{user}}=await supabase.auth.getUser();const {error}=await supabase.from('campaigns').insert({owner_id:user.id,name:cleanName,description:description.trim()||null});if(error)setMessage(error.message);else{setName('');setDescription('');setShow(false);await load()}setBusy(false)}
   async function toggleMember(campaignId,prospectId){setMessage('');const exists=memberships.get(campaignId)?.has(prospectId);const result=exists?await supabase.from('prospect_campaigns').delete().eq('campaign_id',campaignId).eq('prospect_id',prospectId):await supabase.from('prospect_campaigns').insert({campaign_id:campaignId,prospect_id:prospectId});if(result.error)setMessage(result.error.message);else await load()}
   return <section className="panel full campaigns-panel"><div className="panel-head"><div><p className="eyebrow">TARGET GROUPS</p><h2>Campaigns</h2><p className="panel-subtitle">Group prospects by outreach goal and manage exactly who belongs in each campaign.</p></div><button className="add-btn" onClick={()=>setShow(true)}><CirclePlus size={16}/> New campaign</button></div>{message&&<div className="error-banner">{message}</div>}{campaigns.length>0?<div className="campaign-grid">{campaigns.map(c=><CampaignCard key={c.id} campaign={c} people={people} members={memberships.get(c.id)||new Set()} open={selected===c.id} onToggle={()=>setSelected(selected===c.id?null:c.id)} onMemberToggle={toggleMember}/>)}</div>:<div className="empty-state">No campaigns yet. Create your first outreach group.</div>}{show&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setShow(false)}}><form className="modal" onSubmit={create} onMouseDown={e=>e.stopPropagation()}><div className="modal-head"><div><p className="eyebrow">NEW CAMPAIGN</p><h2>Create campaign</h2></div><button type="button" className="icon-btn" onClick={()=>setShow(false)}><X size={18}/></button></div><label className="required-field">Campaign name<em>Required</em><input required autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder="College PG outreach"/></label><label className="full-field">Description<textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="Who are you targeting?"/></label>{message&&<p className="auth-message">{message}</p>}<div className="modal-actions"><button type="button" className="secondary-btn" onClick={()=>setShow(false)}>Cancel</button><button className="add-btn" disabled={busy}>{busy?'Creating...':'Create campaign'}</button></div></form></div>}</section>

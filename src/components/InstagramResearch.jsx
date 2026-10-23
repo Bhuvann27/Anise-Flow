@@ -1,123 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CirclePlus, ExternalLink, Instagram, Pencil, Trash2, X } from 'lucide-react';
+import { CirclePlus, ExternalLink, Instagram, Pencil, Trash2, X, Globe } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import './instagram-research.css';
 
 const blank = { handle: '', account_name: '', category: 'Hospital', custom_category: '', notes: '' };
 const categories = ['Hospital', 'Clinic', 'Medical college', 'Department', 'Medical community', 'Doctor to add later', 'Other'];
-
-function normalizeHandle(value) {
-  return value.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/^@+/, '').replace(/[/?#].*$/, '').trim();
-}
-
-function instagramUrl(handle) {
-  const clean = normalizeHandle(handle);
-  return clean ? `https://www.instagram.com/${clean}/` : '';
-}
-
+function normalizeHandle(value) { return value.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/^@+/, '').replace(/[/?#].*$/, '').trim(); }
+function instagramUrl(handle) { const clean = normalizeHandle(handle); return clean ? `https://www.instagram.com/${clean}/` : ''; }
 export default function InstagramResearch() {
-  const [items, setItems] = useState([]);
-  const [show, setShow] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState(blank);
-  const [query, setQuery] = useState('');
-  const [message, setMessage] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  async function load() {
-    const { data, error } = await supabase.from('instagram_research').select('*').order('updated_at', { ascending: false });
-    if (error) setMessage(error.message);
-    setItems(data || []);
-  }
-
-  useEffect(() => { load(); }, []);
-
-  const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter(item => `${item.handle} ${item.account_name || ''} ${item.category || ''} ${item.custom_category || ''} ${item.notes || ''}`.toLowerCase().includes(q));
-  }, [items, query]);
-
-  const set = (key, value) => setForm(current => ({ ...current, [key]: value }));
-
-  function openNew() {
-    setEditing(null);
-    setForm(blank);
-    setMessage('');
-    setShow(true);
-  }
-
-  function openEdit(item) {
-    setEditing(item);
-    setForm({ handle: item.handle || '', account_name: item.account_name || '', category: item.category || 'Other', custom_category: item.custom_category || '', notes: item.notes || '' });
-    setMessage('');
-    setShow(true);
-  }
-
-  async function save(event) {
-    event.preventDefault();
-    setBusy(true);
-    setMessage('');
-    const handle = normalizeHandle(form.handle);
-    if (!handle) {
-      setMessage('Instagram handle is required.');
-      setBusy(false);
-      return;
-    }
-    if (form.category === 'Other' && !form.custom_category.trim()) {
-      setMessage('Tell us what this account type is.');
-      setBusy(false);
-      return;
-    }
-    const { data: { user } } = await supabase.auth.getUser();
-    const payload = {
-      handle,
-      account_name: form.account_name.trim() || null,
-      category: form.category,
-      custom_category: form.category === 'Other' ? form.custom_category.trim() : null,
-      notes: form.notes.trim() || null,
-      instagram_url: instagramUrl(handle),
-      updated_at: new Date().toISOString()
-    };
-    const result = editing
-      ? await supabase.from('instagram_research').update(payload).eq('id', editing.id).eq('owner_id', user.id)
-      : await supabase.from('instagram_research').insert({ ...payload, owner_id: user.id });
-    if (result.error) setMessage(result.error.message);
-    else { setShow(false); setEditing(null); setForm(blank); await load(); }
-    setBusy(false);
-  }
-
-  async function remove(item) {
-    if (!window.confirm(`Delete ${item.handle ? `@${item.handle}` : 'this Instagram account'}?`)) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    const { error } = await supabase.from('instagram_research').delete().eq('id', item.id).eq('owner_id', user.id);
-    if (error) setMessage(error.message); else await load();
-  }
-
-  return <section className="panel full instagram-research-panel">
-    <div className="panel-head instagram-research-head">
-      <div><p className="eyebrow">RESEARCH SOURCES · {items.length}</p><h2>Instagram Research</h2><p className="panel-subtitle">Save accounts you want to revisit later, especially hospitals and other pages where you may discover individual doctors.</p></div>
-      <button className="add-btn" onClick={openNew}><CirclePlus size={16}/> Add Instagram</button>
-    </div>
-    <div className="instagram-toolbar"><div className="instagram-search"><Instagram size={16}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search saved accounts..."/></div></div>
-    {message && !show && <div className="auth-message">{message}</div>}
-    {visible.length ? <div className="instagram-research-grid">{visible.map(item => <article className="instagram-research-card" key={item.id}>
-      <div className="instagram-card-top"><div className="instagram-card-icon"><Instagram size={19}/></div><span className="pill">{item.category === 'Other' ? (item.custom_category || 'Other') : item.category}</span></div>
-      <div className="instagram-card-main"><h3>{item.account_name || `@${item.handle}`}</h3><a href={instagramUrl(item.handle)} target="_blank" rel="noreferrer">@{item.handle} <ExternalLink size={13}/></a></div>
-      <div className="instagram-note">{item.notes || 'No reason added yet.'}</div>
-      <div className="instagram-card-actions"><button className="secondary-btn" onClick={() => openEdit(item)}><Pencil size={14}/> Edit</button><button className="icon-btn instagram-delete" onClick={() => remove(item)} aria-label={`Delete @${item.handle}`}><Trash2 size={15}/></button></div>
-    </article>)}</div> : <div className="empty-state">No Instagram research accounts yet. Save hospital, clinic, college or other accounts you want to investigate later.</div>}
-    {show && <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setShow(false); }}><form className="modal instagram-research-modal" onSubmit={save} onMouseDown={e => e.stopPropagation()}>
-      <div className="modal-head"><div><p className="eyebrow">{editing ? 'EDIT RESEARCH SOURCE' : 'NEW RESEARCH SOURCE'}</p><h2>{editing ? 'Edit Instagram account' : 'Save Instagram account'}</h2></div><button type="button" className="icon-btn" onClick={() => setShow(false)}><X size={18}/></button></div>
-      <div className="form-grid">
-        <label>Instagram handle<input required value={form.handle} onChange={e => set('handle', e.target.value)} placeholder="@hospitalaccount"/></label>
-        <label>Account name<input value={form.account_name} onChange={e => set('account_name', e.target.value)} placeholder="Hospital / clinic name"/></label>
-        <label>Type / category<select value={form.category} onChange={e => set('category', e.target.value)}>{categories.map(category => <option key={category}>{category}</option>)}</select></label>
-        {form.category === 'Other' && <label>What is this account? <input required value={form.custom_category} onChange={e => set('custom_category', e.target.value)} placeholder="e.g. Medical event page"/></label>}
-      </div>
-      <label className="full-field instagram-notes-field">Why did I save this?<textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder={form.category === 'Doctor to add later' ? 'e.g. Saw this doctor in a Reel. Save the handle now and add them to People later when I have time.' : 'e.g. Hospital account. Revisit later to find individual doctors who may need a website.'}/></label>
-      {message && <p className="auth-message">{message}</p>}
-      <div className="modal-actions"><button type="button" className="secondary-btn" onClick={() => setShow(false)}>Cancel</button><button className="add-btn" disabled={busy}>{busy ? 'Saving...' : editing ? 'Save changes' : 'Save account'}</button></div>
-    </form></div>}
-  </section>;
+  const [items,setItems]=useState([]),[show,setShow]=useState(false),[editing,setEditing]=useState(null),[form,setForm]=useState(blank),[query,setQuery]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
+  async function load(){const {data,error}=await supabase.from('instagram_research').select('*').order('updated_at',{ascending:false});if(error)setMessage(error.message);setItems(data||[])} useEffect(()=>{load()},[]);
+  const visible=useMemo(()=>{const q=query.trim().toLowerCase();if(!q)return items;return items.filter(item=>`${item.handle} ${item.account_name||''} ${item.category||''} ${item.custom_category||''} ${item.notes||''}`.toLowerCase().includes(q))},[items,query]);
+  const set=(key,value)=>setForm(current=>({...current,[key]:value}));
+  function openNew(){setEditing(null);setForm(blank);setMessage('');setShow(true)}
+  function openEdit(item){setEditing(item);setForm({handle:item.handle||'',account_name:item.account_name||'',category:item.category||'Other',custom_category:item.custom_category||'',notes:item.notes||''});setMessage('');setShow(true)}
+  function openWebsiteResearch(){history.pushState({aniseFlowPage:'Website Research',peopleFilter:{status:'all',priority:'all'}},'',location.href);window.dispatchEvent(new PopStateEvent('popstate'))}
+  async function save(event){event.preventDefault();setBusy(true);setMessage('');const handle=normalizeHandle(form.handle);if(!handle){setMessage('Instagram handle is required.');setBusy(false);return}if(form.category==='Other'&&!form.custom_category.trim()){setMessage('Tell us what this account type is.');setBusy(false);return}const {data:{user}}=await supabase.auth.getUser();const payload={handle,account_name:form.account_name.trim()||null,category:form.category,custom_category:form.category==='Other'?form.custom_category.trim():null,notes:form.notes.trim()||null,instagram_url:instagramUrl(handle),updated_at:new Date().toISOString()};const result=editing?await supabase.from('instagram_research').update(payload).eq('id',editing.id).eq('owner_id',user.id):await supabase.from('instagram_research').insert({...payload,owner_id:user.id});if(result.error)setMessage(result.error.message);else{setShow(false);setEditing(null);setForm(blank);await load()}setBusy(false)}
+  async function remove(item){if(!window.confirm(`Delete ${item.handle?`@${item.handle}`:'this Instagram account'}?`))return;const {data:{user}}=await supabase.auth.getUser();const {error}=await supabase.from('instagram_research').delete().eq('id',item.id).eq('owner_id',user.id);if(error)setMessage(error.message);else await load()}
+  return <section className="panel full instagram-research-panel"><div className="panel-head instagram-research-head"><div><p className="eyebrow">RESEARCH SOURCES · {items.length}</p><h2>Instagram Research</h2><p className="panel-subtitle">Save accounts you want to revisit later, especially hospitals and other pages where you may discover individual doctors.</p></div><div className="dashboard-actions"><button className="secondary-btn" onClick={openWebsiteResearch}><Globe size={15}/> Website Research</button><button className="add-btn" onClick={openNew}><CirclePlus size={16}/> Add Instagram</button></div></div><div className="instagram-toolbar"><div className="instagram-search"><Instagram size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search saved accounts..."/></div></div>{message&&!show&&<div className="auth-message">{message}</div>}{visible.length?<div className="instagram-research-grid">{visible.map(item=><article className="instagram-research-card" key={item.id}><div className="instagram-card-top"><div className="instagram-card-icon"><Instagram size={19}/></div><span className="pill">{item.category==='Other'?(item.custom_category||'Other'):item.category}</span></div><div className="instagram-card-main"><h3>{item.account_name||`@${item.handle}`}</h3><a href={instagramUrl(item.handle)} target="_blank" rel="noreferrer">@{item.handle} <ExternalLink size={13}/></a></div><div className="instagram-note">{item.notes||'No reason added yet.'}</div><div className="instagram-card-actions"><button className="secondary-btn" onClick={()=>openEdit(item)}><Pencil size={14}/> Edit</button><button className="icon-btn instagram-delete" onClick={()=>remove(item)} aria-label={`Delete @${item.handle}`}><Trash2 size={15}/></button></div></article>)}</div>:<div className="empty-state">No Instagram research accounts yet. Save hospital, clinic, college or other accounts you want to investigate later.</div>}{show&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setShow(false)}}><form className="modal instagram-research-modal" onSubmit={save} onMouseDown={e=>e.stopPropagation()}><div className="modal-head"><div><p className="eyebrow">{editing?'EDIT RESEARCH SOURCE':'NEW RESEARCH SOURCE'}</p><h2>{editing?'Edit Instagram account':'Save Instagram account'}</h2></div><button type="button" className="icon-btn" onClick={()=>setShow(false)}><X size={18}/></button></div><div className="form-grid"><label>Instagram handle<input required value={form.handle} onChange={e=>set('handle',e.target.value)} placeholder="@hospitalaccount"/></label><label>Account name<input value={form.account_name} onChange={e=>set('account_name',e.target.value)} placeholder="Hospital / clinic name"/></label><label>Type / category<select value={form.category} onChange={e=>set('category',e.target.value)}>{categories.map(category=><option key={category}>{category}</option>)}</select></label>{form.category==='Other'&&<label>What is this account? <input required value={form.custom_category} onChange={e=>set('custom_category',e.target.value)} placeholder="e.g. Medical event page"/></label>}</div><label className="full-field instagram-notes-field">Why did I save this?<textarea value={form.notes} onChange={e=>set('notes',e.target.value)} placeholder={form.category==='Doctor to add later'?'e.g. Saw this doctor in a Reel. Save the handle now and add them to People later when I have time.':'e.g. Hospital account. Revisit later to find individual doctors who may need a website.'}/></label>{message&&<p className="auth-message">{message}</p>}<div className="modal-actions"><button type="button" className="secondary-btn" onClick={()=>setShow(false)}>Cancel</button><button className="add-btn" disabled={busy}>{busy?'Saving...':editing?'Save changes':'Save account'}</button></div></form></div>}</section>;
 }

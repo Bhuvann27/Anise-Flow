@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Check, CirclePlus, Target, Users, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import WebsiteResearch from './WebsiteResearch';
 
 export default function Campaigns(){
+  if(history.state?.aniseFlowPage === 'Website Research') return <WebsiteResearch/>;
   const [campaigns,setCampaigns]=useState([]);
   const [people,setPeople]=useState([]);
   const [memberships,setMemberships]=useState(new Map());
@@ -21,91 +23,13 @@ export default function Campaigns(){
     ]);
     if(ce||pe||me)setMessage((ce||pe||me).message);
     const map=new Map();
-    (m||[]).forEach(x=>{
-      if(!map.has(x.campaign_id))map.set(x.campaign_id,new Set());
-      map.get(x.campaign_id).add(x.prospect_id);
-    });
-    setCampaigns(c||[]);
-    setPeople(p||[]);
-    setMemberships(map);
+    (m||[]).forEach(x=>{if(!map.has(x.campaign_id))map.set(x.campaign_id,new Set());map.get(x.campaign_id).add(x.prospect_id)});
+    setCampaigns(c||[]);setPeople(p||[]);setMemberships(map);
   }
-
   useEffect(()=>{load()},[]);
-
-  async function create(e){
-    e.preventDefault();
-    setBusy(true);
-    setMessage('');
-    const cleanName=name.trim();
-    if(!cleanName){setMessage('Campaign name is required.');setBusy(false);return}
-    const {data:{user}}=await supabase.auth.getUser();
-    const {error}=await supabase.from('campaigns').insert({owner_id:user.id,name:cleanName,description:description.trim()||null});
-    if(error)setMessage(error.message);
-    else{setName('');setDescription('');setShow(false);await load()}
-    setBusy(false);
-  }
-
-  async function toggleMember(campaignId,prospectId){
-    setMessage('');
-    const exists=memberships.get(campaignId)?.has(prospectId);
-    const result=exists
-      ?await supabase.from('prospect_campaigns').delete().eq('campaign_id',campaignId).eq('prospect_id',prospectId)
-      :await supabase.from('prospect_campaigns').insert({campaign_id:campaignId,prospect_id:prospectId});
-    if(result.error)setMessage(result.error.message);else await load();
-  }
-
-  return <section className="panel full campaigns-panel">
-    <div className="panel-head">
-      <div><p className="eyebrow">TARGET GROUPS</p><h2>Campaigns</h2><p className="panel-subtitle">Group prospects by outreach goal and manage exactly who belongs in each campaign.</p></div>
-      <button className="add-btn" onClick={()=>setShow(true)}><CirclePlus size={16}/> New campaign</button>
-    </div>
-    {message&&<div className="error-banner">{message}</div>}
-    {campaigns.length>0
-      ?<div className="campaign-grid">{campaigns.map(c=><CampaignCard key={c.id} campaign={c} people={people} members={memberships.get(c.id)||new Set()} open={selected===c.id} onToggle={()=>setSelected(selected===c.id?null:c.id)} onMemberToggle={toggleMember}/>)}</div>
-      :<div className="empty-state">No campaigns yet. Create your first outreach group.</div>}
-    {show&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setShow(false)}}>
-      <form className="modal" onSubmit={create} onMouseDown={e=>e.stopPropagation()}>
-        <div className="modal-head"><div><p className="eyebrow">NEW CAMPAIGN</p><h2>Create campaign</h2></div><button type="button" className="icon-btn" onClick={()=>setShow(false)}><X size={18}/></button></div>
-        <label className="required-field">Campaign name<em>Required</em><input required autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder="College PG outreach"/></label>
-        <label className="full-field">Description<textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="Who are you targeting?"/></label>
-        {message&&<p className="auth-message">{message}</p>}
-        <div className="modal-actions"><button type="button" className="secondary-btn" onClick={()=>setShow(false)}>Cancel</button><button className="add-btn" disabled={busy}>{busy?'Creating...':'Create campaign'}</button></div>
-      </form>
-    </div>}
-  </section>
+  async function create(e){e.preventDefault();setBusy(true);setMessage('');const cleanName=name.trim();if(!cleanName){setMessage('Campaign name is required.');setBusy(false);return}const {data:{user}}=await supabase.auth.getUser();const {error}=await supabase.from('campaigns').insert({owner_id:user.id,name:cleanName,description:description.trim()||null});if(error)setMessage(error.message);else{setName('');setDescription('');setShow(false);await load()}setBusy(false)}
+  async function toggleMember(campaignId,prospectId){setMessage('');const exists=memberships.get(campaignId)?.has(prospectId);const result=exists?await supabase.from('prospect_campaigns').delete().eq('campaign_id',campaignId).eq('prospect_id',prospectId):await supabase.from('prospect_campaigns').insert({campaign_id:campaignId,prospect_id:prospectId});if(result.error)setMessage(result.error.message);else await load()}
+  return <section className="panel full campaigns-panel"><div className="panel-head"><div><p className="eyebrow">TARGET GROUPS</p><h2>Campaigns</h2><p className="panel-subtitle">Group prospects by outreach goal and manage exactly who belongs in each campaign.</p></div><button className="add-btn" onClick={()=>setShow(true)}><CirclePlus size={16}/> New campaign</button></div>{message&&<div className="error-banner">{message}</div>}{campaigns.length>0?<div className="campaign-grid">{campaigns.map(c=><CampaignCard key={c.id} campaign={c} people={people} members={memberships.get(c.id)||new Set()} open={selected===c.id} onToggle={()=>setSelected(selected===c.id?null:c.id)} onMemberToggle={toggleMember}/>)}</div>:<div className="empty-state">No campaigns yet. Create your first outreach group.</div>}{show&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setShow(false)}}><form className="modal" onSubmit={create} onMouseDown={e=>e.stopPropagation()}><div className="modal-head"><div><p className="eyebrow">NEW CAMPAIGN</p><h2>Create campaign</h2></div><button type="button" className="icon-btn" onClick={()=>setShow(false)}><X size={18}/></button></div><label className="required-field">Campaign name<em>Required</em><input required autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder="College PG outreach"/></label><label className="full-field">Description<textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="Who are you targeting?"/></label>{message&&<p className="auth-message">{message}</p>}<div className="modal-actions"><button type="button" className="secondary-btn" onClick={()=>setShow(false)}>Cancel</button><button className="add-btn" disabled={busy}>{busy?'Creating...':'Create campaign'}</button></div></form></div>}</section>
 }
-
-function CampaignCard({campaign,people,members,open,onToggle,onMemberToggle}){
-  const count=members.size;
-  const percent=people.length?Math.round(count/people.length*100):0;
-  return <article className={`campaign-card ${open?'is-open':''}`}>
-    <div className="campaign-card-head">
-      <div className="campaign-icon"><Target size={18}/></div>
-      <div className="campaign-title"><h3>{campaign.name}</h3><span>{campaign.description||'No description added'}</span></div>
-    </div>
-    <div className="campaign-metrics">
-      <div><small>PEOPLE</small><strong>{count}</strong></div>
-      <div><small>TARGET</small><strong>{campaign.target_count||'—'}</strong></div>
-      <div><small>STATUS</small><strong>{open?'Managing':'Active'}</strong></div>
-    </div>
-    <div className="campaign-progress">
-      <div><span>{count} people assigned</span><span>{percent}%</span></div>
-      <div className="bar"><i style={{width:`${Math.min(100,percent)}%`}}/></div>
-    </div>
-    <button className="campaign-manage" onClick={onToggle}><Users size={15}/>{open?'Close campaign':'Manage people'}</button>
-    {open&&<CampaignMembers people={people} members={members} onToggle={onMemberToggle} campaignId={campaign.id}/>} 
-  </article>
-}
-
-function CampaignMembers({people,members,onToggle,campaignId}){
-  return <div className="campaign-members">
-    <div className="campaign-members-head"><div><strong>Campaign people</strong><span>Select the prospects who belong here.</span></div><span className="campaign-count">{members.size}</span></div>
-    {people.length>0
-      ?people.map(p=><label className="campaign-person" key={p.id}>
-        <input type="checkbox" checked={members.has(p.id)} onChange={()=>onToggle(campaignId,p.id)}/>
-        <span className="campaign-check">{members.has(p.id)&&<Check size={13}/>}</span>
-        <span className="campaign-person-copy"><b>{p.name}</b><small>{p.speciality||'Speciality not set'} · {p.location||'Location not set'} · {p.priority||'medium'} priority</small></span>
-      </label>)
-      :<em>No prospects yet. Add a doctor first.</em>}
-  </div>
-}
+function CampaignCard({campaign,people,members,open,onToggle,onMemberToggle}){const count=members.size;const percent=people.length?Math.round(count/people.length*100):0;return <article className={`campaign-card ${open?'is-open':''}`}><div className="campaign-card-head"><div className="campaign-icon"><Target size={18}/></div><div className="campaign-title"><h3>{campaign.name}</h3><span>{campaign.description||'No description added'}</span></div></div><div className="campaign-metrics"><div><small>PEOPLE</small><strong>{count}</strong></div><div><small>TARGET</small><strong>{campaign.target_count||'—'}</strong></div><div><small>STATUS</small><strong>{open?'Managing':'Active'}</strong></div></div><div className="campaign-progress"><div><span>{count} people assigned</span><span>{percent}%</span></div><div className="bar"><i style={{width:`${Math.min(100,percent)}%`}}/></div></div><button className="campaign-manage" onClick={onToggle}><Users size={15}/>{open?'Close campaign':'Manage people'}</button>{open&&<CampaignMembers people={people} members={members} onToggle={onMemberToggle} campaignId={campaign.id}/>}</article>}
+function CampaignMembers({people,members,onToggle,campaignId}){return <div className="campaign-members"><div className="campaign-members-head"><div><strong>Campaign people</strong><span>Select the prospects who belong here.</span></div><span className="campaign-count">{members.size}</span></div>{people.length>0?people.map(p=><label className="campaign-person" key={p.id}><input type="checkbox" checked={members.has(p.id)} onChange={()=>onToggle(campaignId,p.id)}/><span className="campaign-check">{members.has(p.id)&&<Check size={13}/>}</span><span className="campaign-person-copy"><b>{p.name}</b><small>{p.speciality||'Speciality not set'} · {p.location||'Location not set'} · {p.priority||'medium'} priority</small></span></label>):<em>No prospects yet. Add a doctor first.</em>}</div>}

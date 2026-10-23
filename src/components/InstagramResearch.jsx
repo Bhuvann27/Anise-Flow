@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import './instagram-research.css';
 
 const blank = { handle: '', account_name: '', category: 'Hospital', custom_category: '', notes: '' };
-const categories = ['Hospital', 'Clinic', 'Medical college', 'Department', 'Medical community', 'Other'];
+const categories = ['Hospital', 'Clinic', 'Medical college', 'Department', 'Medical community', 'Doctor to add later', 'Other'];
 
 function normalizeHandle(value) {
   return value.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/^@+/, '').replace(/[/?#].*$/, '').trim();
@@ -115,7 +115,7 @@ export default function InstagramResearch() {
         <label>Type / category<select value={form.category} onChange={e => set('category', e.target.value)}>{categories.map(category => <option key={category}>{category}</option>)}</select></label>
         {form.category === 'Other' && <label>What is this account? <input required value={form.custom_category} onChange={e => set('custom_category', e.target.value)} placeholder="e.g. Medical event page"/></label>}
       </div>
-      <label className="full-field instagram-notes-field">Why did I save this?<textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="e.g. Hospital account. Revisit later to find individual doctors who may need a website."/></label>
+      <label className="full-field instagram-notes-field">Why did I save this?<textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder={form.category === 'Doctor to add later' ? 'e.g. Saw this doctor in a Reel. Save the handle now and add them to People later when I have time.' : 'e.g. Hospital account. Revisit later to find individual doctors who may need a website.'}/></label>
       {message && <p className="auth-message">{message}</p>}
       <div className="modal-actions"><button type="button" className="secondary-btn" onClick={() => setShow(false)}>Cancel</button><button className="add-btn" disabled={busy}>{busy ? 'Saving...' : editing ? 'Save changes' : 'Save account'}</button></div>
     </form></div>}

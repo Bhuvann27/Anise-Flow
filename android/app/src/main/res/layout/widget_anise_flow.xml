@@ -8,6 +8,7 @@
     android:background="@drawable/widget_background">
 
     <LinearLayout
+        android:id="@+id/widget_add_action"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -37,6 +38,7 @@
         android:layout_height="1dp" />
 
     <LinearLayout
+        android:id="@+id/widget_open_action"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"

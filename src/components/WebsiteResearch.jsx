@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CirclePlus, ExternalLink, Pencil, Trash2, Globe, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import './website-research.css';
+import { useHistoryOverlay } from '../lib/historyNavigation';
 
 const blank = { url: '', title: '', category: 'Doctor', custom_category: '', notes: '' };
 const categories = ['Doctor', 'Hospital', 'Clinic', 'Medical organization / institution', 'Competitor agency', 'Website inspiration', 'Other'];
@@ -20,6 +21,7 @@ export default function WebsiteResearch() {
   const [query, setQuery] = useState('');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const closeDialog = useHistoryOverlay(show, 'website-research', () => setShow(false));
 
   async function load() {
     const { data, error } = await supabase.from('website_research').select('*').order('updated_at', { ascending: false });
@@ -46,7 +48,7 @@ export default function WebsiteResearch() {
     const { data: { user } } = await supabase.auth.getUser();
     const payload = { url, title: form.title.trim() || null, category: form.category, custom_category: form.category === 'Other' ? form.custom_category.trim() : null, notes: form.notes.trim() || null, updated_at: new Date().toISOString() };
     const result = editing ? await supabase.from('website_research').update(payload).eq('id', editing.id).eq('owner_id', user.id) : await supabase.from('website_research').insert({ ...payload, owner_id: user.id });
-    if (result.error) setMessage(result.error.message); else { setShow(false); setEditing(null); setForm(blank); await load(); }
+    if (result.error) setMessage(result.error.message); else { closeDialog(); setEditing(null); setForm(blank); await load(); }
     setBusy(false);
   }
 
@@ -70,8 +72,8 @@ export default function WebsiteResearch() {
       <div className="website-url">{item.url}</div><div className="website-note">{item.notes || 'No note added yet.'}</div>
       <div className="website-card-actions"><button className="secondary-btn" onClick={() => openEdit(item)}><Pencil size={14}/> Edit</button><button className="icon-btn website-delete" onClick={() => remove(item)} aria-label="Delete website"><Trash2 size={15}/></button></div>
     </article>)}</div> : <div className="empty-state">No saved websites yet. Add doctor, hospital, inspiration or competitor websites for later.</div>}
-    {show && <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setShow(false); }}><form className="modal website-research-modal" onSubmit={save} onMouseDown={e => e.stopPropagation()}>
-      <div className="modal-head"><div><p className="eyebrow">{editing ? 'EDIT RESEARCH SOURCE' : 'NEW RESEARCH SOURCE'}</p><h2>{editing ? 'Edit website' : 'Save website'}</h2></div><button type="button" className="icon-btn" onClick={() => setShow(false)}><X size={18}/></button></div>
+    {show && <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) closeDialog(); }}><form className="modal website-research-modal" onSubmit={save} onMouseDown={e => e.stopPropagation()}>
+      <div className="modal-head"><div><p className="eyebrow">{editing ? 'EDIT RESEARCH SOURCE' : 'NEW RESEARCH SOURCE'}</p><h2>{editing ? 'Edit website' : 'Save website'}</h2></div><button type="button" className="icon-btn" onClick={() => closeDialog()}><X size={18}/></button></div>
       <div className="form-grid">
         <label>Website URL<input required value={form.url} onChange={e => set('url', e.target.value)} placeholder="https://example.com"/></label>
         <label>Name / title<input value={form.title} onChange={e => set('title', e.target.value)} placeholder="Doctor, hospital, agency..."/></label>
@@ -80,7 +82,7 @@ export default function WebsiteResearch() {
       </div>
       <label className="full-field website-notes-field">Why did I save this?<textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="What should I remember about this website?"/></label>
       {message && <p className="auth-message">{message}</p>}
-      <div className="modal-actions"><button type="button" className="secondary-btn" onClick={() => setShow(false)}>Cancel</button><button className="add-btn" disabled={busy}>{busy ? 'Saving...' : editing ? 'Save changes' : 'Save website'}</button></div>
+      <div className="modal-actions"><button type="button" className="secondary-btn" onClick={() => closeDialog()}>Cancel</button><button className="add-btn" disabled={busy}>{busy ? 'Saving...' : editing ? 'Save changes' : 'Save website'}</button></div>
     </form></div>}
   </section>;
 }

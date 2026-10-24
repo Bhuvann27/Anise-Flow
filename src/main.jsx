@@ -5,6 +5,7 @@ import './styles.css';
 import './mobile-fixes.css';
 import './anise-flow-fixes.css';
 import './ui-behavior.js';
+import './redesign.css';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));

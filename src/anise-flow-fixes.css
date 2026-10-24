@@ -61,7 +61,15 @@
   overflow: hidden;
 }
 
+/* Keep the mobile app header below the Android status bar instead of letting
+   the system icons sit on top of the page title and menu button. */
 @media (max-width: 760px) {
+  .topbar {
+    padding-top: max(24px, env(safe-area-inset-top));
+    height: calc(86px + env(safe-area-inset-top));
+    box-sizing: border-box;
+  }
+
   .hero-row h1 {
     font-size: 32px;
   }

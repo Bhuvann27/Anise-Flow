@@ -1,6 +1,7 @@
 package com.anise.flow;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -19,9 +20,11 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
     private static final String WEB_APP_URL = "https://anise-flow.bnonlyuser-01c.workers.dev/";
+    private static final String ACTION_ADD_DOCTOR = "com.anise.flow.ACTION_ADD_DOCTOR";
 
     private WebView webView;
     private View errorView;
+    private boolean pendingAddDoctor = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +34,9 @@ public class MainActivity extends Activity {
         window.setNavigationBarColor(Color.rgb(11, 13, 15));
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         window.setDecorFitsSystemWindows(true);
+
+        pendingAddDoctor = ACTION_ADD_DOCTOR.equals(getIntent().getAction())
+                || "add_doctor".equals(getIntent().getStringExtra("widget_action"));
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -64,6 +70,13 @@ public class MainActivity extends Activity {
             }
 
             @Override
+            public void onPageFinished(WebView view, String url) {
+                if (pendingAddDoctor) {
+                    openAddDoctorFromWidget();
+                }
+            }
+
+            @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 if (request.isForMainFrame()) {
                     showError();
@@ -87,6 +100,37 @@ public class MainActivity extends Activity {
 
         setContentView(root);
         webView.loadUrl(WEB_APP_URL);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (ACTION_ADD_DOCTOR.equals(intent.getAction())
+                || "add_doctor".equals(intent.getStringExtra("widget_action"))) {
+            pendingAddDoctor = true;
+            if (webView != null) {
+                openAddDoctorFromWidget();
+            }
+        }
+    }
+
+    private void openAddDoctorFromWidget() {
+        if (webView == null) return;
+        webView.evaluateJavascript(
+                "(function(){" +
+                "function find(){" +
+                "var els=Array.prototype.slice.call(document.querySelectorAll('button'));" +
+                "var el=els.find(function(b){return (b.innerText||'').trim().toLowerCase()==='add doctor';});" +
+                "if(el){el.click();return true;}return false;}" +
+                "if(find()){return;}" +
+                "if(window.__aniseWidgetObserver){window.__aniseWidgetObserver.disconnect();}" +
+                "window.__aniseWidgetObserver=new MutationObserver(function(){if(find()){window.__aniseWidgetObserver.disconnect();}});" +
+                "if(document.body){window.__aniseWidgetObserver.observe(document.body,{childList:true,subtree:true});}" +
+                "setTimeout(function(){if(window.__aniseWidgetObserver){window.__aniseWidgetObserver.disconnect();}},30000);" +
+                "})()",
+                value -> pendingAddDoctor = false
+        );
     }
 
     private View createErrorView() {

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:gravity="center"
+    android:background="@drawable/widget_background">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="4dp"
+        android:background="@drawable/widget_action_background">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_widget_add"
+            android:tint="#E8EEF0"
+            android:contentDescription="Add doctor" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Add doctor"
+            android:textColor="#E8EEF0"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:fontFamily="sans" />
+    </LinearLayout>
+
+    <Space
+        android:layout_width="8dp"
+        android:layout_height="1dp" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="4dp"
+        android:background="@drawable/widget_action_background">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_widget_open"
+            android:tint="#E8EEF0"
+            android:contentDescription="Open ANISE Flow" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Open app"
+            android:textColor="#E8EEF0"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:fontFamily="sans" />
+    </LinearLayout>
+</LinearLayout>

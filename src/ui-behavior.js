@@ -8,6 +8,18 @@ function replaceInstagramLabels(root = document) {
   });
 }
 
+function hideInstagramWebsiteShortcut() {
+  const page = document.querySelector('.breadcrumbs strong')?.textContent?.trim();
+  const instagramPanel = document.querySelector('.instagram-research-panel');
+  if (page !== INSTAGRAM_LABEL && !instagramPanel) return;
+
+  document.querySelectorAll('button').forEach((button) => {
+    if (button.textContent?.trim() !== 'Website Research') return;
+    if (button.closest('.sidebar') || button.closest('.mobile-quick-menu')) return;
+    if (instagramPanel && instagramPanel.contains(button)) button.style.display = 'none';
+  });
+}
+
 function closeQuickActions() {
   const fab = document.querySelector('.mobile-fab.active');
   if (fab) fab.click();
@@ -42,6 +54,7 @@ function installOutsideQuickActionClose() {
 function syncUi() {
   replaceInstagramLabels();
   ensureInstagramQuickAction();
+  hideInstagramWebsiteShortcut();
 }
 
 if (typeof document !== 'undefined') {

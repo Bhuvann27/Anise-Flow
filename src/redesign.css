@@ -132,13 +132,34 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .person-mini strong { color: var(--ink); font-size: 12px; }
 .person-mini span { max-width: 100%; color: #7e857b; font-size: 11px; line-height: 1.45; }
 .content .person-mini-button:hover { background: #f7f8f4 !important; color: var(--ink) !important; }
-.pipeline-summary { gap: 17px; }
-.pipeline-item { padding: 5px 7px; border-radius: 10px; }
-.pipeline-item:hover { background: #fafaf7 !important; }
-.pipeline-item span { color: #777e74; font-size: 11px; }
-.pipeline-item strong { margin: 8px 0 11px; color: var(--ink); font-size: 23px; }
-.bar { height: 5px; background: #eef0e9; }
-.bar i { background: var(--accent); }
+.pipeline-summary { align-items: stretch; gap: 12px; }
+.pipeline-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+  min-height: 112px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: #fff;
+  text-align: left;
+  transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+.pipeline-item:hover { transform: translateY(-1px); border-color: #dce1d7; background: #fafaf7 !important; }
+.pipeline-item > span:first-child {
+  display: -webkit-box;
+  height: 2.7em;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: #6f776b;
+  font-size: 11px;
+  line-height: 1.35;
+}
+.pipeline-item strong { margin: 7px 0 10px; color: var(--ink); font-size: 23px; line-height: 1; }
+.pipeline-item .bar { width: 100%; height: 4px; margin-top: auto; background: #eef0e9; flex: none; }
+.pipeline-item .bar i { background: #87947d; }
 .table-wrap { border-color: var(--border); border-radius: 14px; }
 table { min-width: 830px; }
 th, td { padding: 15px 16px; border-color: #eff0eb; font-size: 12px; }
@@ -148,10 +169,9 @@ tr:last-child td { border-bottom: 0; }
 .doctor-cell strong { color: var(--ink); font-size: 12px; }
 .doctor-cell span { color: #848b81; font-size: 10px; }
 .pill { border-color: #e6e9e2; background: #f7f8f4; color: #667063; font-size: 10px; }
-.pill.interested, .pill.won, .pill.proposal, .pill.conversation { border-color: transparent; }
+.pill.interested, .pill.won { border-color: transparent; }
 .pill.interested { background: #eaf3e8; color: #50744f; }
-.pill.proposal { background: #edf1fb; color: #596a9a; }
-.pill.conversation { background: #fff2df; color: #986524; }
+.pill.proposal, .pill.conversation { border-color: #e6e9e2; background: #f7f8f4; color: #667063; }
 .pill.won { background: #e7f3eb; color: #477456; }
 .priority-pill { border-radius: 999px; padding: 5px 9px; font-size: 10px; }
 .priority-pill.high { border-color: #f3d2c4; background: #fff0e9; color: #b84a2c; }
@@ -220,7 +240,7 @@ label textarea { min-height: 100px; }
 .pipeline-flow { padding: 18px 4px 10px; }
 .pipeline-flow-stage { min-width: 170px; }
 .pipeline-node { border-color: var(--border); border-radius: 16px; background: #fbfcf8; padding: 18px 16px; }
-.pipeline-node > span { border-color: #f2c6b7; background: var(--accent-soft); color: var(--accent-strong); font-size: 10px; }
+.pipeline-node > span { border-color: #e3e7df; background: #f3f5ef; color: #687263; font-size: 10px; }
 .pipeline-node small { min-height: 30px; color: #737b71; font-size: 10px; }
 .pipeline-node strong { color: var(--ink); font-size: 28px; }
 .pipeline-node em { color: #92988e; font-size: 9px; }
@@ -352,10 +372,9 @@ label textarea { min-height: 100px; }
   .panel-subtitle { font-size: 12px; }
   .panel-head .add-btn, .panel-head .filter-btn { min-height: 42px; padding: 0 12px; white-space: nowrap; }
   .pipeline-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
-  .pipeline-item { min-height: 84px; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: #fbfcf8; }
-  .pipeline-item:hover { padding: 10px !important; }
-  .pipeline-item span { font-size: 10px; }
-  .pipeline-item strong { margin: 5px 0 8px; font-size: 21px; }
+  .pipeline-item { min-height: 104px; padding: 10px 11px; }
+  .pipeline-item > span:first-child { font-size: 10px; }
+  .pipeline-item strong { margin: 7px 0 9px; font-size: 21px; }
   .pipeline-flow-stage { min-width: 150px; }
   .pipeline-node { padding: 14px 12px; }
   .pipeline-insight-row { grid-template-columns: 1fr 1fr; gap: 9px; }

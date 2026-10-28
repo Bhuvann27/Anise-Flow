@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Search, X, UserRound, Instagram, ExternalLink, Phone, Mail, MapPin, Youtube, MessageCircle, Globe2, Users, UserPlus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import DoctorProfile from './DoctorProfile';
 import './unified-search.css';
 
 const SOURCE_OPTIONS = ['Phone', 'Email', 'Instagram', 'YouTube', 'Google Maps', 'WhatsApp', 'Website', 'Friend', 'Referral', 'Other'];
@@ -30,7 +31,15 @@ function prospectSources(row) {
   if (row.website) out.push({ label: 'Website', value: row.website });
   if (row.youtube_id || row.youtube) out.push({ label: 'YouTube', value: row.youtube_id || row.youtube });
   if (row.google_maps || row.maps) out.push({ label: 'Google Maps', value: row.google_maps || row.maps });
-  if (row.source) out.push({ label: sourceKey(row.source), value: row.source });
+  if (row.source) {
+    const label = sourceKey(row.source);
+    const raw = String(row.source).trim();
+    // Do not create a fake second source such as "Instagram → Instagram"
+    // when the actual field already contains the information.
+    const alreadyHasSource = out.some(item => sourceKey(item.label) === label);
+    const sourceIsOnlyLabel = normalize(raw) === normalize(label);
+    if (!alreadyHasSource && !sourceIsOnlyLabel) out.push({ label, value: raw });
+  }
   return out;
 }
 
@@ -48,12 +57,13 @@ function mergePeople(people) {
   const map = new Map();
   for (const person of people) {
     const key = normalize(person.name) || `${person.kind}-${person.id}`;
-    if (!map.has(key)) map.set(key, { ...person, sources: [...person.sources] });
+    if (!map.has(key)) map.set(key, { ...person, sources: [...person.sources], records: [person.record] });
     else {
       const current = map.get(key);
       for (const source of person.sources) {
         if (!current.sources.some(item => item.label === source.label && item.value === source.value)) current.sources.push(source);
       }
+      if (person.record && !current.records.some(record => record?.id === person.record.id && record?.kind === person.record.kind)) current.records.push(person.record);
     }
   }
   return [...map.values()];
@@ -63,17 +73,26 @@ function hasSource(person, source) {
   return person.sources.some(item => sourceKey(item.label) === source);
 }
 
+function DetailRow({ label, value }) {
+  if (!value) return null;
+  return <div className="directory-detail-row"><span>{label}</span><strong>{value}</strong></div>;
+}
+
 export default function UnifiedPeopleSearch({ people = [] }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [selectedSource, setSelectedSource] = useState(null);
   const [checkLaterRows, setCheckLaterRows] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedProspect, setSelectedProspect] = useState(null);
+  const [selectedCheckLater, setSelectedCheckLater] = useState(null);
 
   async function openDirectory() {
     setOpen(true);
     setQuery('');
     setSelectedSource(null);
+    setSelectedProspect(null);
+    setSelectedCheckLater(null);
     setLoading(true);
     const { data } = await supabase.from('instagram_research').select('*').order('created_at', { ascending: false });
     setCheckLaterRows(data || []);
@@ -81,8 +100,8 @@ export default function UnifiedPeopleSearch({ people = [] }) {
   }
 
   const allPeople = useMemo(() => mergePeople([
-    ...people.map(row => ({ kind: 'prospect', id: row.id, name: row.name || 'Unnamed prospect', sources: prospectSources(row) })),
-    ...checkLaterRows.map(row => ({ kind: 'check-later', id: row.id, name: row.name || row.account_name || row.handle || 'Unnamed contact', sources: checkLaterSources(row) }))
+    ...people.map(row => ({ kind: 'prospect', id: row.id, name: row.name || 'Unnamed prospect', sources: prospectSources(row), record: row })),
+    ...checkLaterRows.map(row => ({ kind: 'check-later', id: row.id, name: row.name || row.account_name || row.handle || 'Unnamed contact', sources: checkLaterSources(row), record: row }))
   ]), [people, checkLaterRows]);
 
   const availableCounts = useMemo(() => Object.fromEntries(SOURCE_OPTIONS.map(source => [source, allPeople.filter(person => hasSource(person, source)).length])), [allPeople]);
@@ -95,6 +114,16 @@ export default function UnifiedPeopleSearch({ people = [] }) {
       .sort((a, b) => a.name.localeCompare(b.name))
       .slice(0, 100);
   }, [allPeople, selectedSource, query]);
+
+  function openPerson(person) {
+    const prospect = person.records.find(record => record?.kind === 'prospect');
+    if (prospect) {
+      setSelectedProspect(prospect);
+      return;
+    }
+    const checkLater = person.records.find(record => record?.kind === 'check-later');
+    if (checkLater) setSelectedCheckLater(checkLater);
+  }
 
   return <>
     <button className="find-people-card" onClick={openDirectory}>
@@ -139,10 +168,10 @@ export default function UnifiedPeopleSearch({ people = [] }) {
         <div className="unified-search-results">
           {loading ? <div className="empty-state">Loading your information directory...</div> : visiblePeople.length ? visiblePeople.map(person => {
             const sources = selectedSource ? person.sources.filter(source => sourceKey(source.label) === selectedSource) : person.sources;
-            return <div className="unified-person-result" key={`${person.kind}-${person.id}`}>
+            return <button type="button" className="unified-person-result unified-person-result-button" key={`${person.name}-${person.records.map(record => `${record.kind}-${record.id}`).join('-')}`} onClick={() => openPerson(person)} aria-label={`Open full details for ${person.name}`}>
               <div className="unified-result-person-head">
                 <div className="unified-result-icon"><UserRound size={15} /></div>
-                <div><strong>{person.name}</strong><span>{person.kind === 'prospect' ? 'Prospect' : 'Check Later'}</span></div>
+                <div><strong>{person.name}</strong><span>{person.records.some(record => record.kind === 'prospect') ? 'Prospect' : 'Check Later'}</span></div>
               </div>
               <div className="source-result-list">
                 {sources.map((source, index) => {
@@ -154,8 +183,31 @@ export default function UnifiedPeopleSearch({ people = [] }) {
                   </div>;
                 })}
               </div>
-            </div>;
+              <span className="directory-open-hint">Open full details <ExternalLink size={12} /></span>
+            </button>;
           }) : <div className="empty-state">No people have this information saved yet.</div>}
+        </div>
+      </div>
+    </div>}
+
+    {selectedProspect && <DoctorProfile prospect={selectedProspect} onClose={() => setSelectedProspect(null)} onChanged={() => setSelectedProspect(null)} onLogActivity={() => {}} />}
+
+    {selectedCheckLater && <div className="modal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) setSelectedCheckLater(null); }}>
+      <div className="modal directory-detail-modal" onMouseDown={event => event.stopPropagation()}>
+        <div className="modal-head">
+          <div><p className="eyebrow">CHECK LATER</p><h2>{selectedCheckLater.name || selectedCheckLater.account_name || selectedCheckLater.handle || 'Saved person'}</h2><span>Full saved research details</span></div>
+          <button className="icon-btn" onClick={() => setSelectedCheckLater(null)} aria-label="Close"><X size={18} /></button>
+        </div>
+        <div className="directory-detail-grid">
+          <DetailRow label="Source" value={selectedCheckLater.source_category || selectedCheckLater.category} />
+          <DetailRow label="Instagram handle" value={selectedCheckLater.handle ? `@${selectedCheckLater.handle}` : ''} />
+          <DetailRow label="Account type" value={selectedCheckLater.account_type || selectedCheckLater.category} />
+          <DetailRow label="Contact" value={selectedCheckLater.contact} />
+          <DetailRow label="Profile / link" value={selectedCheckLater.profile_url} />
+          <DetailRow label="Potential" value={`${selectedCheckLater.potential_score || 5}/10`} />
+          <DetailRow label="Custom category" value={selectedCheckLater.custom_category} />
+          <DetailRow label="Notes" value={selectedCheckLater.notes || selectedCheckLater.short_note} />
+          <DetailRow label="Added" value={selectedCheckLater.created_at ? new Date(selectedCheckLater.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : ''} />
         </div>
       </div>
     </div>}

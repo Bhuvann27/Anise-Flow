@@ -24,21 +24,19 @@ const sourceClass = value => sourceKey(value).toLowerCase().replace(/[^a-z0-9]+/
 
 function prospectSources(row) {
   const out = [];
-  if (row.phone) out.push({ label: 'Phone', value: row.phone });
-  if (row.email) out.push({ label: 'Email', value: row.email });
-  if (row.instagram) out.push({ label: 'Instagram', value: row.instagram });
-  if (row.whatsapp) out.push({ label: 'WhatsApp', value: row.whatsapp });
-  if (row.website) out.push({ label: 'Website', value: row.website });
-  if (row.youtube_id || row.youtube) out.push({ label: 'YouTube', value: row.youtube_id || row.youtube });
-  if (row.google_maps || row.maps) out.push({ label: 'Google Maps', value: row.google_maps || row.maps });
+  if (row.phone) out.push({ label: 'Phone', value: row.phone, kind: 'prospect' });
+  if (row.email) out.push({ label: 'Email', value: row.email, kind: 'prospect' });
+  if (row.instagram) out.push({ label: 'Instagram', value: row.instagram, kind: 'prospect' });
+  if (row.whatsapp) out.push({ label: 'WhatsApp', value: row.whatsapp, kind: 'prospect' });
+  if (row.website) out.push({ label: 'Website', value: row.website, kind: 'prospect' });
+  if (row.youtube_id || row.youtube) out.push({ label: 'YouTube', value: row.youtube_id || row.youtube, kind: 'prospect' });
+  if (row.google_maps || row.maps) out.push({ label: 'Google Maps', value: row.google_maps || row.maps, kind: 'prospect' });
   if (row.source) {
     const label = sourceKey(row.source);
     const raw = String(row.source).trim();
-    // Do not create a fake second source such as "Instagram → Instagram"
-    // when the actual field already contains the information.
     const alreadyHasSource = out.some(item => sourceKey(item.label) === label);
     const sourceIsOnlyLabel = normalize(raw) === normalize(label);
-    if (!alreadyHasSource && !sourceIsOnlyLabel) out.push({ label, value: raw });
+    if (!alreadyHasSource && !sourceIsOnlyLabel) out.push({ label, value: raw, kind: 'prospect' });
   }
   return out;
 }
@@ -46,7 +44,7 @@ function prospectSources(row) {
 function checkLaterSources(row) {
   const label = sourceKey(row.source_category || row.category || 'Other');
   const value = row.handle || row.contact || row.profile_url || row.account_name || row.custom_category || row.category || row.short_note || 'Saved in Check Later';
-  return [{ label, value }];
+  return [{ label, value, kind: 'check-later' }];
 }
 
 function searchable(person) {
@@ -57,13 +55,14 @@ function mergePeople(people) {
   const map = new Map();
   for (const person of people) {
     const key = normalize(person.name) || `${person.kind}-${person.id}`;
-    if (!map.has(key)) map.set(key, { ...person, sources: [...person.sources], records: [person.record] });
+    if (!map.has(key)) map.set(key, { ...person, sources: [...person.sources], records: [{ ...person.record, kind: person.kind }] });
     else {
       const current = map.get(key);
       for (const source of person.sources) {
-        if (!current.sources.some(item => item.label === source.label && item.value === source.value)) current.sources.push(source);
+        if (!current.sources.some(item => item.label === source.label && item.value === source.value && item.kind === source.kind)) current.sources.push(source);
       }
-      if (person.record && !current.records.some(record => record?.id === person.record.id && record?.kind === person.record.kind)) current.records.push(person.record);
+      const record = { ...person.record, kind: person.kind };
+      if (record && !current.records.some(existing => existing?.id === record.id && existing?.kind === record.kind)) current.records.push(record);
     }
   }
   return [...map.values()];
@@ -115,14 +114,20 @@ export default function UnifiedPeopleSearch({ people = [] }) {
       .slice(0, 100);
   }, [allPeople, selectedSource, query]);
 
-  function openPerson(person) {
-    const prospect = person.records.find(record => record?.kind === 'prospect');
-    if (prospect) {
-      setSelectedProspect(prospect);
-      return;
+  function openPerson(person, source = null) {
+    const sourceRecordKind = source?.kind;
+    const preferredKind = sourceRecordKind || (person.records.some(record => record?.kind === 'prospect') ? 'prospect' : 'check-later');
+    const record = person.records.find(item => item?.kind === preferredKind) || person.records[0];
+    if (!record) return;
+    if (record.kind === 'prospect') {
+      setOpen(false);
+      setSelectedCheckLater(null);
+      setSelectedProspect(record);
+    } else {
+      setOpen(false);
+      setSelectedProspect(null);
+      setSelectedCheckLater(record);
     }
-    const checkLater = person.records.find(record => record?.kind === 'check-later');
-    if (checkLater) setSelectedCheckLater(checkLater);
   }
 
   return <>
@@ -168,15 +173,17 @@ export default function UnifiedPeopleSearch({ people = [] }) {
         <div className="unified-search-results">
           {loading ? <div className="empty-state">Loading your information directory...</div> : visiblePeople.length ? visiblePeople.map(person => {
             const sources = selectedSource ? person.sources.filter(source => sourceKey(source.label) === selectedSource) : person.sources;
-            return <button type="button" className="unified-person-result unified-person-result-button" key={`${person.name}-${person.records.map(record => `${record.kind}-${record.id}`).join('-')}`} onClick={() => openPerson(person)} aria-label={`Open full details for ${person.name}`}>
+            const hasProspect = person.records.some(record => record.kind === 'prospect');
+            const hasCheckLater = person.records.some(record => record.kind === 'check-later');
+            return <button type="button" className="unified-person-result unified-person-result-button" key={`${person.name}-${person.records.map(record => `${record.kind}-${record.id}`).join('-')}`} onClick={() => openPerson(person, selectedSource ? sources[0] : null)} aria-label={`Open full details for ${person.name}`}>
               <div className="unified-result-person-head">
                 <div className="unified-result-icon"><UserRound size={15} /></div>
-                <div><strong>{person.name}</strong><span>{person.records.some(record => record.kind === 'prospect') ? 'Prospect' : 'Check Later'}</span></div>
+                <div><strong>{person.name}</strong><span>{hasProspect && hasCheckLater ? 'Prospect · Check Later' : hasProspect ? 'Prospect' : 'Check Later'}</span></div>
               </div>
               <div className="source-result-list">
                 {sources.map((source, index) => {
                   const Icon = sourceIcon[sourceKey(source.label)] || ExternalLink;
-                  return <div className={`source-result-row source-${sourceClass(source.label)}`} key={`${source.label}-${source.value}-${index}`}>
+                  return <div className={`source-result-row source-${sourceClass(source.label)}`} key={`${source.label}-${source.value}-${source.kind}-${index}`}>
                     <span className="source-result-icon"><Icon size={13} /></span>
                     <span className="source-result-label">{sourceKey(source.label)}</span>
                     <span className="source-result-value">{source.value}</span>

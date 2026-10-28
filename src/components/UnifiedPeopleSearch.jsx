@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Search, X, UserRound, Instagram, ExternalLink, Phone, Mail, MapPin, Youtube, MessageCircle, Globe2, Users, UserPlus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import './unified-search.css';
 
 const SOURCE_OPTIONS=['All','Phone','Email','Instagram','YouTube','Google Maps','WhatsApp','Website','Friend','Referral','Other'];
-const sourceIcon={Phone,Email:Mail,Instagram,Youtube, 'YouTube':Youtube,'Google Maps':MapPin,WhatsApp:MessageCircle,Website:Globe2,Friend:Users,Referral:UserPlus,Other:ExternalLink};
+const sourceIcon={Phone,Email:Mail,Instagram,YouTube:Youtube,'Google Maps':MapPin,WhatsApp:MessageCircle,Website:Globe2,Friend:Users,Referral:UserPlus,Other:ExternalLink};
 const normalize=value=>String(value||'').trim().toLowerCase();
 const sourceKey=value=>{const s=normalize(value);if(s.includes('instagram'))return'Instagram';if(s.includes('youtube'))return'YouTube';if(s.includes('google maps')||s.includes('maps'))return'Google Maps';if(s.includes('whatsapp'))return'WhatsApp';if(s.includes('website')||s.includes('web'))return'Website';if(s.includes('friend'))return'Friend';if(s.includes('referral'))return'Referral';if(s.includes('phone')||s.includes('mobile')||s.includes('call'))return'Phone';if(s.includes('email')||s.includes('mail'))return'Email';return'Other'};
 const sourceClass=value=>sourceKey(value).toLowerCase().replace(/[^a-z0-9]+/g,'-');

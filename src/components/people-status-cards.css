@@ -1,22 +1,22 @@
-.person-card-mobile.status-card-new{background:#e4e7e3;border-color:#cdd2cc;color:#252923;box-shadow:0 5px 16px rgba(54,59,52,.08)}
-.person-card-mobile.status-card-contacted{background:#f3e5c4;border-color:#dfc98e;color:#252923;box-shadow:0 5px 16px rgba(137,104,38,.12)}
-.person-card-mobile.status-card-follow_up{background:#dcecdf;border-color:#bdd3bf;color:#263428;box-shadow:0 5px 16px rgba(70,111,76,.11)}
-.person-card-mobile.status-card-won{background:#252923;border-color:#151814;color:#fff;box-shadow:0 6px 18px rgba(20,24,20,.18)}
-.person-card-mobile.status-card-lost{background:#f2d9d5;border-color:#dfb7b0;color:#4a2824;box-shadow:0 5px 16px rgba(151,69,55,.12)}
+.person-card-mobile.status-card-new{background:radial-gradient(circle at 14% 10%,rgba(255,255,255,.96) 0%,rgba(255,255,255,0) 38%),linear-gradient(135deg,#f7f8f6 0%,#eef0ed 52%,#e6e9e5 100%);border-color:#c9cec8;color:#252923;box-shadow:0 9px 24px rgba(54,59,52,.09),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(120,128,120,.05)}
+.person-card-mobile.status-card-contacted{background:radial-gradient(circle at 14% 10%,rgba(255,255,255,.88) 0%,rgba(255,255,255,0) 38%),linear-gradient(135deg,#fff8e5 0%,#f5e7bf 54%,#ead8a9 100%);border-color:#d9c17d;color:#252923;box-shadow:0 9px 24px rgba(137,104,38,.12),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(137,104,38,.06)}
+.person-card-mobile.status-card-follow_up{background:radial-gradient(circle at 14% 10%,rgba(255,255,255,.9) 0%,rgba(255,255,255,0) 38%),linear-gradient(135deg,#f1faf3 0%,#e0f0e3 54%,#d2e7d6 100%);border-color:#b2cfb7;color:#263428;box-shadow:0 9px 24px rgba(70,111,76,.11),inset 0 1px 0 rgba(255,255,255,.92),inset 0 -1px 0 rgba(70,111,76,.05)}
+.person-card-mobile.status-card-won{background:radial-gradient(circle at 14% 10%,rgba(255,255,255,.13) 0%,rgba(255,255,255,0) 34%),linear-gradient(135deg,#303530 0%,#252923 58%,#1d211e 100%);border-color:#151814;color:#fff;box-shadow:0 10px 26px rgba(20,24,20,.2),inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(0,0,0,.18)}
+.person-card-mobile.status-card-lost{background:radial-gradient(circle at 14% 10%,rgba(255,255,255,.86) 0%,rgba(255,255,255,0) 38%),linear-gradient(135deg,#fff5f3 0%,#f3deda 54%,#ead0cc 100%);border-color:#d8aaa3;color:#4a2824;box-shadow:0 9px 24px rgba(151,69,55,.11),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(151,69,55,.05)}
 .person-card-mobile.status-card-new .person-card-copy strong,.person-card-mobile.status-card-contacted .person-card-copy strong,.person-card-mobile.status-card-follow_up .person-card-copy strong,.person-card-mobile.status-card-lost .person-card-copy strong{color:inherit}
 .person-card-mobile.status-card-new .person-card-copy span,.person-card-mobile.status-card-contacted .person-card-copy span{color:#5e655c}
 .person-card-mobile.status-card-follow_up .person-card-copy span{color:#4f6653}
 .person-card-mobile.status-card-lost .person-card-copy span{color:#77504a}
 .person-card-mobile.status-card-won .person-card-copy strong{color:#fff}
 .person-card-mobile.status-card-won .person-card-copy span,.person-card-mobile.status-card-won .person-card-copy small{color:#d5dbd6}
-.person-card-mobile.status-card-new .avatar.soft,.person-card-mobile.status-card-contacted .avatar.soft,.person-card-mobile.status-card-follow_up .avatar.soft,.person-card-mobile.status-card-lost .avatar.soft{background:rgba(255,255,255,.48);border-color:rgba(75,82,73,.13);color:#527352}
-.person-card-mobile.status-card-won .avatar.soft{background:#3a413a;border-color:#505850;color:#dfe6df}
+.person-card-mobile.status-card-new .avatar.soft,.person-card-mobile.status-card-contacted .avatar.soft,.person-card-mobile.status-card-follow_up .avatar.soft,.person-card-mobile.status-card-lost .avatar.soft{background:rgba(255,255,255,.52);border-color:rgba(75,82,73,.13);color:#527352}
+.person-card-mobile.status-card-won .avatar.soft{background:rgba(58,65,58,.9);border-color:#505850;color:#dfe6df}
 .person-card-mobile.status-card-new .status-new{color:#756d58}
 .person-card-mobile.status-card-contacted .status-contacted{color:#80672c}
 .person-card-mobile.status-card-follow_up .status-follow-up{color:#477052}
 .person-card-mobile.status-card-lost .status-lost{color:#9b4437}
 .person-card-mobile.status-card-won .status-won{color:#fff}
-.status-row-new td{background:#e4e7e3}.status-row-contacted td{background:#f3e5c4}.status-row-follow_up td{background:#dcecdf}.status-row-won td{background:#252923;color:#fff}.status-row-lost td{background:#f2d9d5}
+.status-row-new td{background:linear-gradient(135deg,#f7f8f6 0%,#eef0ed 52%,#e6e9e5 100%)}.status-row-contacted td{background:linear-gradient(135deg,#fff8e5 0%,#f5e7bf 54%,#ead8a9 100%)}.status-row-follow_up td{background:linear-gradient(135deg,#f1faf3 0%,#e0f0e3 54%,#d2e7d6 100%)}.status-row-won td{background:linear-gradient(135deg,#303530 0%,#252923 58%,#1d211e 100%);color:#fff}.status-row-lost td{background:linear-gradient(135deg,#fff5f3 0%,#f3deda 54%,#ead0cc 100%)}
 .status-row-new td:first-child,.status-row-contacted td:first-child,.status-row-follow_up td:first-child,.status-row-won td:first-child,.status-row-lost td:first-child{border-left:4px solid transparent}
 .status-row-new td:first-child{border-left-color:#9ca39a}.status-row-contacted td:first-child{border-left-color:#c99e3d}.status-row-follow_up td:first-child{border-left-color:#5c9367}.status-row-won td:first-child{border-left-color:#111}.status-row-lost td:first-child{border-left-color:#c55b4b}
 .status-row-won td{color:#e8ede9}.status-row-won .doctor-cell strong{color:#fff}.status-row-won .doctor-cell span{color:#c8d0ca}

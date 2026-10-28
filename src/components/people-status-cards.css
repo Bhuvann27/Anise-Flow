@@ -1,0 +1,22 @@
+.person-card-mobile.status-card-new{background:#e4e7e3;border-color:#cdd2cc;color:#252923;box-shadow:0 5px 16px rgba(54,59,52,.08)}
+.person-card-mobile.status-card-contacted{background:#f3e5c4;border-color:#dfc98e;color:#252923;box-shadow:0 5px 16px rgba(137,104,38,.12)}
+.person-card-mobile.status-card-follow_up{background:#dcecdf;border-color:#bdd3bf;color:#263428;box-shadow:0 5px 16px rgba(70,111,76,.11)}
+.person-card-mobile.status-card-won{background:#252923;border-color:#151814;color:#fff;box-shadow:0 6px 18px rgba(20,24,20,.18)}
+.person-card-mobile.status-card-lost{background:#f2d9d5;border-color:#dfb7b0;color:#4a2824;box-shadow:0 5px 16px rgba(151,69,55,.12)}
+.person-card-mobile.status-card-new .person-card-copy strong,.person-card-mobile.status-card-contacted .person-card-copy strong,.person-card-mobile.status-card-follow_up .person-card-copy strong,.person-card-mobile.status-card-lost .person-card-copy strong{color:inherit}
+.person-card-mobile.status-card-new .person-card-copy span,.person-card-mobile.status-card-contacted .person-card-copy span{color:#5e655c}
+.person-card-mobile.status-card-follow_up .person-card-copy span{color:#4f6653}
+.person-card-mobile.status-card-lost .person-card-copy span{color:#77504a}
+.person-card-mobile.status-card-won .person-card-copy strong{color:#fff}
+.person-card-mobile.status-card-won .person-card-copy span,.person-card-mobile.status-card-won .person-card-copy small{color:#d5dbd6}
+.person-card-mobile.status-card-new .avatar.soft,.person-card-mobile.status-card-contacted .avatar.soft,.person-card-mobile.status-card-follow_up .avatar.soft,.person-card-mobile.status-card-lost .avatar.soft{background:rgba(255,255,255,.48);border-color:rgba(75,82,73,.13);color:#527352}
+.person-card-mobile.status-card-won .avatar.soft{background:#3a413a;border-color:#505850;color:#dfe6df}
+.person-card-mobile.status-card-new .status-new{color:#756d58}
+.person-card-mobile.status-card-contacted .status-contacted{color:#80672c}
+.person-card-mobile.status-card-follow_up .status-follow-up{color:#477052}
+.person-card-mobile.status-card-lost .status-lost{color:#9b4437}
+.person-card-mobile.status-card-won .status-won{color:#fff}
+.status-row-new td{background:#e4e7e3}.status-row-contacted td{background:#f3e5c4}.status-row-follow_up td{background:#dcecdf}.status-row-won td{background:#252923;color:#fff}.status-row-lost td{background:#f2d9d5}
+.status-row-new td:first-child,.status-row-contacted td:first-child,.status-row-follow_up td:first-child,.status-row-won td:first-child,.status-row-lost td:first-child{border-left:4px solid transparent}
+.status-row-new td:first-child{border-left-color:#9ca39a}.status-row-contacted td:first-child{border-left-color:#c99e3d}.status-row-follow_up td:first-child{border-left-color:#5c9367}.status-row-won td:first-child{border-left-color:#111}.status-row-lost td:first-child{border-left-color:#c55b4b}
+.status-row-won td{color:#e8ede9}.status-row-won .doctor-cell strong{color:#fff}.status-row-won .doctor-cell span{color:#c8d0ca}

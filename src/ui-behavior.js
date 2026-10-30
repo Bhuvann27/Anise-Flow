@@ -20,46 +20,37 @@ function hideInstagramWebsiteShortcut() {
   });
 }
 
-function closeQuickActions() {
-  const fab = document.querySelector('.mobile-fab.active');
-  if (fab) fab.click();
-}
-
-function ensureInstagramQuickAction() {
-  const menu = document.querySelector('.mobile-quick-menu');
-  if (!menu || menu.querySelector('.quick-instagram-action')) return;
-
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'quick-instagram-action';
-  button.innerHTML = '<span class="quick-instagram-icon">◎</span><span>Instagram Check Later</span>';
-  button.addEventListener('click', (event) => {
-    event.stopPropagation();
-    history.pushState({ aniseFlowPage: INSTAGRAM_ROUTE, peopleFilter: { status: 'all', priority: 'all' } }, '', location.href);
-    window.dispatchEvent(new PopStateEvent('popstate'));
-    closeQuickActions();
+function removeLegacyCheckLaterFloatingButton() {
+  document.querySelectorAll('button').forEach((button) => {
+    const text = button.textContent?.trim();
+    if (text !== 'Check Later') return;
+    if (button.closest('.sidebar') || button.closest('.mobile-quick-actions')) return;
+    button.remove();
   });
-  menu.appendChild(button);
 }
 
-function installOutsideQuickActionClose() {
-  document.addEventListener('pointerdown', (event) => {
-    const actions = document.querySelector('.mobile-quick-actions');
-    const fab = document.querySelector('.mobile-fab.active');
-    if (!actions || !fab || actions.contains(event.target)) return;
-    closeQuickActions();
-  }, true);
+function openCheckLaterFromFab(event) {
+  const fab = event.target?.closest?.('.mobile-fab');
+  if (!fab) return;
+  event.preventDefault();
+  event.stopPropagation();
+  history.pushState({ aniseFlowPage: INSTAGRAM_ROUTE, peopleFilter: { status: 'all', priority: 'all' } }, '', location.href);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+}
+
+function installMobileFabNavigation() {
+  document.addEventListener('click', openCheckLaterFromFab, true);
 }
 
 function syncUi() {
   replaceInstagramLabels();
-  ensureInstagramQuickAction();
   hideInstagramWebsiteShortcut();
+  removeLegacyCheckLaterFloatingButton();
 }
 
 if (typeof document !== 'undefined') {
   const observer = new MutationObserver(syncUi);
   observer.observe(document.documentElement, { childList: true, subtree: true });
   window.addEventListener('load', syncUi);
-  installOutsideQuickActionClose();
+  installMobileFabNavigation();
 }

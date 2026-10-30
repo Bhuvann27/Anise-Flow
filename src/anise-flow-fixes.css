@@ -1,76 +1,41 @@
 /* Final-pass visual fixes for the dashboard. Loaded after the existing app styles. */
 
-/* Keep the dashboard identity simple: text only, no decorative logo. */
-.hero-row > div:first-child > .eyebrow {
-  display: none;
+.hero-row > div:first-child > .eyebrow { display:none; }
+.hero-row h1 { display:block; min-height:0; margin:0; font-size:clamp(32px,4vw,46px); line-height:1; letter-spacing:-0.045em; color:#e7ebec; font-family:Manrope,sans-serif; font-weight:700; }
+.pipeline-summary .pipeline-item-button,.pipeline-summary .pipeline-item-button:hover,.pipeline-summary .pipeline-item-button:focus,.pipeline-summary .pipeline-item-button:focus-visible,.pipeline-summary .pipeline-item-button:active,.pipeline-summary .pipeline-item-button:visited { -webkit-appearance:none!important; appearance:none!important; -webkit-tap-highlight-color:transparent!important; background:transparent!important; background-color:transparent!important; border:0!important; box-shadow:none!important; color:inherit!important; outline:none!important; text-align:left; text-decoration:none!important; filter:none!important; }
+.pipeline-summary .pipeline-item-button { width:100%!important; min-width:0!important; min-height:0!important; margin:0!important; padding:0!important; border-radius:0!important; touch-action:manipulation; }
+.pipeline-summary .pipeline-item-button::before,.pipeline-summary .pipeline-item-button::after { background:transparent!important; box-shadow:none!important; }
+.pipeline-summary .pipeline-item-button .bar { min-width:0; overflow:hidden; }
+
+/* Prospect add form: use the same wide, rounded proportions as Check Later. */
+.prospect-detail-section { grid-column:1/-1; margin-top:4px; }
+.prospect-detail-section .check-later-detail-head { margin-bottom:10px; }
+.prospect-detail-section .check-later-detail-row { margin-top:8px; }
+.prospect-detail-section .prospect-detail-row { grid-template-columns:minmax(125px,.7fr) minmax(0,1.3fr) 38px; }
+.prospect-detail-section .prospect-add-detail-btn { white-space:nowrap; }
+
+/* Check Later floating action is a single clean pill, never a quick-action menu. */
+.mobile-quick-actions { z-index:70; }
+.mobile-quick-actions .mobile-fab { border-radius:999px!important; transform:none!important; rotate:none!important; }
+.mobile-quick-actions .mobile-fab:active { transform:scale(.98)!important; }
+
+@media (max-width:760px) {
+  .topbar { padding-top:max(24px,env(safe-area-inset-top)); height:calc(86px + env(safe-area-inset-top)); box-sizing:border-box; }
+  .hero-row h1 { font-size:32px; }
+  .modal { width:calc(100vw - 20px)!important; max-width:680px!important; border-radius:20px!important; }
+  .modal-head { border-radius:20px 20px 0 0; }
+  .prospect-detail-section { padding:14px!important; border-radius:16px!important; }
+  .prospect-detail-section .check-later-detail-head { align-items:flex-start; flex-direction:column; }
+  .prospect-detail-section .prospect-add-detail-btn { width:100%; justify-content:center; }
+  .prospect-detail-section .prospect-detail-row { grid-template-columns:1fr 38px; }
+  .prospect-detail-section .prospect-detail-row select { grid-column:1/-1; }
+
+  /* Notification sheet: keep it inside the viewport and visually tied to the bell. */
+  .notification-panel { position:fixed!important; top:calc(86px + env(safe-area-inset-top))!important; left:10px!important; right:10px!important; width:auto!important; max-width:none!important; max-height:calc(100dvh - 104px)!important; border-radius:20px!important; overflow:auto!important; box-sizing:border-box; }
+  .notification-panel::before { right:27px!important; top:-6px!important; }
+  .notification-head { padding:18px 18px 12px!important; }
+  .notification-item { padding-left:18px!important; padding-right:18px!important; }
+  .notification-footer { margin:0 18px 16px!important; }
 }
 
-.hero-row h1 {
-  display: block;
-  min-height: 0;
-  margin: 0;
-  font-size: clamp(32px, 4vw, 46px);
-  line-height: 1;
-  letter-spacing: -0.045em;
-  color: #e7ebec;
-  font-family: Manrope, sans-serif;
-  font-weight: 700;
-}
-
-/* Make every dashboard pipeline stage a plain, consistent clickable item.
-   In particular, prevent the Proposal item from retaining the mobile button's
-   native/focus background and rounded block styling. */
-.pipeline-summary .pipeline-item-button,
-.pipeline-summary .pipeline-item-button:hover,
-.pipeline-summary .pipeline-item-button:focus,
-.pipeline-summary .pipeline-item-button:focus-visible,
-.pipeline-summary .pipeline-item-button:active,
-.pipeline-summary .pipeline-item-button:visited {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  -webkit-tap-highlight-color: transparent !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  color: inherit !important;
-  outline: none !important;
-  text-align: left;
-  text-decoration: none !important;
-  filter: none !important;
-}
-
-.pipeline-summary .pipeline-item-button {
-  width: 100% !important;
-  min-width: 0 !important;
-  min-height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
-  touch-action: manipulation;
-}
-
-.pipeline-summary .pipeline-item-button::before,
-.pipeline-summary .pipeline-item-button::after {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-.pipeline-summary .pipeline-item-button .bar {
-  min-width: 0;
-  overflow: hidden;
-}
-
-/* Keep the mobile app header below the Android status bar instead of letting
-   the system icons sit on top of the page title and menu button. */
-@media (max-width: 760px) {
-  .topbar {
-    padding-top: max(24px, env(safe-area-inset-top));
-    height: calc(86px + env(safe-area-inset-top));
-    box-sizing: border-box;
-  }
-
-  .hero-row h1 {
-    font-size: 32px;
-  }
-}
+@media (min-width:761px) { .required-field em { display:none; } .people-list-mobile { display:none; } }

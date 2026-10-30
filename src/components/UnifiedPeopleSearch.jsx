@@ -31,6 +31,11 @@ function prospectSources(row) {
   if (row.website) out.push({ label: 'Website', value: row.website, kind: 'prospect' });
   if (row.youtube_id || row.youtube) out.push({ label: 'YouTube', value: row.youtube_id || row.youtube, kind: 'prospect' });
   if (row.google_maps || row.maps) out.push({ label: 'Google Maps', value: row.google_maps || row.maps, kind: 'prospect' });
+  if (Array.isArray(row.additional_links)) row.additional_links.forEach(link => {
+    if (!link) return;
+    if (typeof link === 'string') out.push({ label: 'Other', value: link, kind: 'prospect' });
+    else if (link.value) out.push({ label: link.type || 'Other', value: link.value, kind: 'prospect' });
+  });
   if (row.source) {
     const label = sourceKey(row.source);
     const raw = String(row.source).trim();
@@ -41,10 +46,44 @@ function prospectSources(row) {
   return out;
 }
 
+function checkLaterDetails(row) {
+  const details = [];
+  if (row.youtube_id) details.push({ type: 'YouTube', value: row.youtube_id });
+  if (row.phone) details.push({ type: 'Phone', value: row.phone });
+  if (row.whatsapp) details.push({ type: 'WhatsApp', value: row.whatsapp });
+  if (row.email) details.push({ type: 'Email', value: row.email });
+  if (Array.isArray(row.additional_links)) row.additional_links.forEach(link => {
+    if (!link) return;
+    if (typeof link === 'string') details.push({ type: 'Other', value: link });
+    else if (link.value) details.push({ type: link.type || 'Other', value: link.value });
+  });
+  if (!details.length && row.contact) details.push({ type: 'Phone', value: row.contact });
+  return details;
+}
+
 function checkLaterSources(row) {
-  const label = sourceKey(row.source_category || row.category || 'Other');
-  const value = row.handle || row.contact || row.profile_url || row.account_name || row.custom_category || row.category || row.short_note || 'Saved in Check Later';
-  return [{ label, value, kind: 'check-later' }];
+  const out = [];
+  const add = (label, value) => {
+    if (!value) return;
+    const normalizedLabel = sourceKey(label);
+    const normalizedValue = normalize(value);
+    if (!out.some(item => sourceKey(item.label) === normalizedLabel && normalize(item.value) === normalizedValue)) {
+      out.push({ label: normalizedLabel, value: String(value), kind: 'check-later' });
+    }
+  };
+
+  const originalSource = row.source_category || row.category || 'Other';
+  if (sourceKey(originalSource) === 'Instagram') {
+    add('Instagram', row.handle ? `@${String(row.handle).replace(/^@+/, '')}` : row.profile_url || row.instagram_url);
+  } else {
+    add(originalSource, row.handle || row.contact || row.profile_url || row.account_name || row.custom_category || row.category);
+  }
+
+  if (row.handle) add('Instagram', `@${String(row.handle).replace(/^@+/, '')}`);
+  checkLaterDetails(row).forEach(detail => add(detail.type, detail.value));
+  if (row.profile_url && sourceKey(originalSource) !== 'Instagram') add('Website', row.profile_url);
+
+  return out.length ? out : [{ label: 'Other', value: 'Saved in Check Later', kind: 'check-later' }];
 }
 
 function searchable(person) {
@@ -59,7 +98,7 @@ function mergePeople(people) {
     else {
       const current = map.get(key);
       for (const source of person.sources) {
-        if (!current.sources.some(item => item.label === source.label && item.value === source.value && item.kind === source.kind)) current.sources.push(source);
+        if (!current.sources.some(item => sourceKey(item.label) === sourceKey(source.label) && normalize(item.value) === normalize(source.value) && item.kind === source.kind)) current.sources.push(source);
       }
       const record = { ...person.record, kind: person.kind };
       if (record && !current.records.some(existing => existing?.id === record.id && existing?.kind === record.kind)) current.records.push(record);
@@ -207,9 +246,13 @@ export default function UnifiedPeopleSearch({ people = [] }) {
         </div>
         <div className="directory-detail-grid">
           <DetailRow label="Source" value={selectedCheckLater.source_category || selectedCheckLater.category} />
-          <DetailRow label="Instagram handle" value={selectedCheckLater.handle ? `@${selectedCheckLater.handle}` : ''} />
+          <DetailRow label="Instagram handle" value={selectedCheckLater.handle ? `@${String(selectedCheckLater.handle).replace(/^@+/, '')}` : ''} />
           <DetailRow label="Account type" value={selectedCheckLater.account_type || selectedCheckLater.category} />
-          <DetailRow label="Contact" value={selectedCheckLater.contact} />
+          <DetailRow label="Phone" value={selectedCheckLater.phone || ''} />
+          <DetailRow label="WhatsApp" value={selectedCheckLater.whatsapp || ''} />
+          <DetailRow label="Email" value={selectedCheckLater.email || ''} />
+          <DetailRow label="YouTube" value={selectedCheckLater.youtube_id || ''} />
+          <DetailRow label="Additional links" value={Array.isArray(selectedCheckLater.additional_links) ? selectedCheckLater.additional_links.map(link => typeof link === 'string' ? link : link?.value).filter(Boolean).join(' · ') : ''} />
           <DetailRow label="Profile / link" value={selectedCheckLater.profile_url} />
           <DetailRow label="Potential" value={`${selectedCheckLater.potential_score || 5}/10`} />
           <DetailRow label="Custom category" value={selectedCheckLater.custom_category} />

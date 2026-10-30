@@ -60,26 +60,24 @@ function syncFloatingCheckLaterVisibility() {
 }
 
 function navigateToCheckLater() {
-  const current = history.state;
+  const current = history.state || {};
   const next = {
-    ...(current?.aniseFlowNavigation ? current : {}),
+    ...current,
     aniseFlowPage: INSTAGRAM_ROUTE,
     page: INSTAGRAM_ROUTE,
     peopleFilter: { status: 'all', priority: 'all' },
     checkLaterSource: null,
   };
   history.pushState(next, '', location.href);
-  window.dispatchEvent(new PopStateEvent('popstate'));
+  window.dispatchEvent(new PopStateEvent('popstate', { state: next }));
 }
 
 function openCheckLaterFromFab(event) {
-  const target = event.target?.closest?.('.mobile-fab, .mobile-quick-actions button');
-  if (!target) return;
-  if (!isDashboardPage()) return;
-  const text = target.textContent?.trim() || '';
-  if (!target.classList.contains('mobile-fab') && text !== 'Check Later') return;
+  const target = event.target?.closest?.('.mobile-fab');
+  if (!target || !isDashboardPage()) return;
   event.preventDefault();
   event.stopPropagation();
+  event.stopImmediatePropagation();
   navigateToCheckLater();
 }
 
@@ -292,7 +290,9 @@ async function saveEnhancedProspect(form, detailSection, submitButton) {
 }
 
 function enhanceAddDoctorModal() {
-  const forms = document.querySelectorAll('.modal form');
+  // AddDoctor renders the modal on the form element itself, so target form.modal.
+  // The old selector looked for a form nested inside .modal and therefore never found it.
+  const forms = document.querySelectorAll('form.modal, .modal form');
   forms.forEach(form => {
     const heading = form.querySelector('.modal-head h2')?.textContent?.trim();
     if (heading === 'Add doctor') createDetailSection(form);

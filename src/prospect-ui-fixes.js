@@ -12,12 +12,11 @@ function buildDetailSection(form) {
   const heading = form.querySelector('.modal-head h2')?.textContent?.trim();
   if (heading !== 'Add doctor') return;
 
-  const sourceInput = getLabelInput(form, 'Source');
   const notesLabel = [...form.querySelectorAll('label')].find(label => {
     const text = (label.textContent || '').trim().toLowerCase();
     return text.startsWith('notes');
   });
-  const anchor = sourceInput?.closest('label') || notesLabel || form.querySelector('.modal-actions');
+  const anchor = notesLabel || form.querySelector('.modal-actions');
   if (!anchor?.parentNode) return;
 
   const section = document.createElement('section');

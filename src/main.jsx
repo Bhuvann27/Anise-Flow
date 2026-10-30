@@ -7,8 +7,21 @@ import './anise-flow-fixes.css';
 import './ui-behavior.js';
 import './redesign.css';
 
+// ANISE Flow is a live CRM. Do not let an old service worker keep stale
+// JavaScript/CSS in front of the current deployment.
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+  window.addEventListener('load', async () => {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map(registration => registration.unregister()));
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(key => caches.delete(key)));
+      }
+    } catch (_) {
+      // A cache cleanup failure must never prevent the CRM from rendering.
+    }
+  });
 }
 
 createRoot(document.getElementById('root')).render(

@@ -5,6 +5,7 @@ import './styles.css';
 import './mobile-fixes.css';
 import './anise-flow-fixes.css';
 import './ui-behavior.js';
+import './prospect-ui-fixes.js';
 import './redesign.css';
 
 // ANISE Flow is a live CRM. Do not let an old service worker keep stale

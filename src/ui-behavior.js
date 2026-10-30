@@ -29,6 +29,21 @@ function removeLegacyCheckLaterFloatingButton() {
   });
 }
 
+function simplifyMobileQuickAction() {
+  const menu = document.querySelector('.mobile-quick-menu');
+  if (menu) {
+    menu.style.display = 'none';
+    menu.style.pointerEvents = 'none';
+  }
+
+  const fab = document.querySelector('.mobile-fab');
+  if (fab) {
+    fab.style.transform = 'none';
+    fab.style.rotate = 'none';
+    fab.setAttribute('aria-label', 'Open Check Later');
+  }
+}
+
 function openCheckLaterFromFab(event) {
   const fab = event.target?.closest?.('.mobile-fab');
   if (!fab) return;
@@ -46,6 +61,7 @@ function syncUi() {
   replaceInstagramLabels();
   hideInstagramWebsiteShortcut();
   removeLegacyCheckLaterFloatingButton();
+  simplifyMobileQuickAction();
 }
 
 if (typeof document !== 'undefined') {
